@@ -1,0 +1,27 @@
+{
+  "name": "mmohealer",
+  "version": "1.0.0",
+  "description": "I play healers in MMO’s, it is a brutal thankless position. I would like to impart some of my experiences into a healing minigame.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack --watch --mode=development"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahamacher/MMO-healer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ahamacher/MMO-healer/issues"
+  },
+  "homepage": "https://github.com/ahamacher/MMO-healer#readme",
+  "dependencies": {
+    "webpack": "^4.31.0",
+    "webpack-cli": "^3.3.2"
+  }
+}
