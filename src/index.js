@@ -6,17 +6,16 @@ const NPC = require("./npc.js");
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvasEl = document.getElementById('game-canvas');
+  const ctx = canvasEl.getContext("2d");
   canvasEl.width = Game.DIM_X;
   canvasEl.height = Game.DIM_Y;
 
   
-  const ctx = canvasEl.getContext("2d");
   //temp
-  window.Game = Game;
-  window.ctx = ctx;
-  window.NPC = NPC;
-  window.options = {comp: { tank: 1, healer: 1, dps: 3 }};
+  const boss = document.getElementById('bahamut');
+  const dead = document.getElementById('skull');
 
+  const options = { comp: { tank: 1, healer: 1, dps: 3 }, ctx, canvas: canvasEl, bossSrc: boss, dead, document: document };
 
   const game = new Game(options);
   new GameView(game, ctx).start();

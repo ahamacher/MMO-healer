@@ -2,3 +2,13 @@ body {
   display: flex;
   justify-content: center;
 }
+
+#bahamut {
+  display: none;
+  position: absolute;
+}
+
+#skull {
+  display: none;
+  position: absolute;
+}

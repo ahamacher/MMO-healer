@@ -1,7 +1,7 @@
 const Tank = require("./units/tank.js");
 const Healer = require("./units/healer.js");
 const Dps = require("./units/dps.js");
-
+const Boss = require("./units/boss.js");
 
 
 class Game {
@@ -9,10 +9,46 @@ class Game {
     // teamcomp array goes {tanks: X, healer: Y, dps: Z}
     this.comp = options.comp;
     this.party = [];
-    this.addFriendlyNpc();
+    this.dead = options.dead;
+
+    // probably not needed
+    this.ctx = options.ctx;
+    this.canvas = options.canvas;
+
+    // creating units
+    this.addFriendlyNpc(options.ctx, options.canvas);
+    this.addBoss(options.ctx, options.canvas, options.bossSrc);
+    this.addPlayerSpells(options.canvas, options.document);
   }
 
-  addFriendlyNpc(){
+  findSelected(){
+    const selected = this.party.find(member => member.selected === true);
+    
+    this.party.forEach(member => {
+      if (member !== selected){
+        member.selected = false;
+      }
+    });
+    return selected;
+  }
+
+  showSelected(member){
+    console.log(member);
+    // if (member){
+      // console.log(member);
+      // member.ctx.shadowBlur = 10;
+      // member.ctx.shadowColor = "black";
+    // }
+  }
+
+  clearSelected(){
+    this.party.forEach(member => {
+      member.selected = false;
+    });
+  }
+
+
+  addFriendlyNpc(ctx, canvas){
     if (this.comp.tank + this.comp.healer + this.comp.dps > 20){
       return "error too many partymembers";
     }
@@ -22,20 +58,45 @@ class Game {
     let k = 0;
 
     while (i < this.comp.tank){
-      this.party.push(new Tank({pos: Game.NPC_POS[pos]}));
+      this.party.push(new Tank({pos: Game.NPC_POS[pos], ctx, canvas, game: this }));
+      // this.addNpcListener(pos);
       pos = pos + 1;
       i = i + 1;
     }
     while (j < this.comp.healer){
-      this.party.push(new Healer({pos: Game.NPC_POS[pos]}));
+      this.party.push(new Healer({pos: Game.NPC_POS[pos], ctx, canvas, game: this }));
+      // this.addNpcListener(pos);
       pos = pos + 1;
       j = j + 1;
     }
     while (k < this.comp.dps){
-      this.party.push(new Dps({pos: Game.NPC_POS[pos]}));
+      this.party.push(new Dps({pos: Game.NPC_POS[pos], ctx, canvas,game: this }));
+      // this.addNpcListener(pos);
       pos = pos + 1;
       k = k + 1;
     }
+  }
+
+  addBoss(ctx, canvas, bossSrc) {
+    this.boss = new Boss({ pos: [633,104], ctx, canvas, game: this, bossSrc });
+  }
+
+  // selected(target) {
+  //   target.ctx.shadowBlue = 10;
+  //   target.ctx.shadowColor = "black";
+  // }
+
+  addPlayerSpells(canvas, document){
+    let selected;
+    document.addEventListener('keydown', (e) => {
+      switch (e.which){
+        case 49:
+          console.log('1 key was pressed');
+          selected = this.findSelected();
+          selected.currentHp = selected.currentHp + 20;
+          break;
+      }
+    });
   }
 
   drawPlayerBox(ctx){
@@ -135,11 +196,16 @@ class Game {
 
     //drawing monster box
     this.drawMonsterBox(ctx);
+    this.boss.draw(ctx);
 
     // rendering all npc frames
     this.party.forEach(member => {
       member.draw(ctx);
+      // this.showSelected();
     });
+
+    // this.findSelected();
+    
   }
 }
 

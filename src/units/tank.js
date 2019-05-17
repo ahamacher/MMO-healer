@@ -9,6 +9,8 @@ class Tank extends NPC {
     options.color = '#003399';
     options.pos = options.pos;
     super(options);
+
+    this.weight = 70;
   }
 }
 
