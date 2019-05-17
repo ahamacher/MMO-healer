@@ -2,7 +2,7 @@ const Tank = require("./units/tank.js");
 const Healer = require("./units/healer.js");
 const Dps = require("./units/dps.js");
 const Boss = require("./units/boss.js");
-
+const Spells = require("./spells.js");
 
 class Game {
   constructor(options){
@@ -10,6 +10,13 @@ class Game {
     this.comp = options.comp;
     this.party = [];
     this.dead = options.dead;
+    this.activeGCD = false;
+    this.isCasting = false;
+    this.castTimeInitial = 0;
+    this.castTime = 0;
+    this.spellText = "";
+    this.mp = 1000;
+    this.bg = options.bg;
 
     // probably not needed
     this.ctx = options.ctx;
@@ -18,7 +25,15 @@ class Game {
     // creating units
     this.addFriendlyNpc(options.ctx, options.canvas);
     this.addBoss(options.ctx, options.canvas, options.bossSrc);
-    this.addPlayerSpells(options.canvas, options.document);
+    this.addPlayerSpells(options.document);
+  }
+
+  logCurrHp(){
+    let hp = [];
+    this.party.forEach(member => {
+      hp.push(member.currentHp);
+    });
+    console.log(hp);
   }
 
   findSelected(){
@@ -34,11 +49,6 @@ class Game {
 
   showSelected(member){
     console.log(member);
-    // if (member){
-      // console.log(member);
-      // member.ctx.shadowBlur = 10;
-      // member.ctx.shadowColor = "black";
-    // }
   }
 
   clearSelected(){
@@ -81,22 +91,83 @@ class Game {
     this.boss = new Boss({ pos: [633,104], ctx, canvas, game: this, bossSrc });
   }
 
-  // selected(target) {
-  //   target.ctx.shadowBlue = 10;
-  //   target.ctx.shadowColor = "black";
-  // }
+  playerCastBar(ctx) {
+    if (this.isCasting){
+      let barLength = ((this.castTime / this.castTimeInitial) * 275);
+      if (this.castTime < 120) {
+        barLength = 0;
+      }
 
-  addPlayerSpells(canvas, document){
+      ctx.fillStyle = '#000000';
+      ctx.beginPath();
+      ctx.rect(148, 463, 275, 21);
+      ctx.fill();
+
+      ctx.fillStyle = '#9900cc';
+      ctx.beginPath();
+      ctx.rect(148, 463, barLength, 21);
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = "18px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(this.spellText, 285.5, 480.5);
+
+      this.castTime += 120;
+    }
+    if (this.castTime >= this.castTimeInitial){
+      this.castTime = 0;
+      this.isCasting = false;
+      this.castTimeInitial = 0;
+      this.spellText = "";
+    }
+  }
+
+  manaBar(ctx){
+    // manabar backing
+    ctx.fillStyle = '#000000';
+    ctx.beginPath();
+    ctx.rect(148, 433, 275, 21);
+    ctx.fill();
+
+    const currentMp = ((this.mp / 1000) * 275);
+    ctx.fillStyle = '#0066cc';
+    ctx.beginPath();
+    ctx.rect(148, 433, currentMp, 21);
+    ctx.fill();
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = "18px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Mana", 285.5, 450.5);
+  }
+
+  addPlayerSpells(document){
     let selected;
     document.addEventListener('keydown', (e) => {
       switch (e.which){
         case 49:
           console.log('1 key was pressed');
           selected = this.findSelected();
-          selected.currentHp = selected.currentHp + 20;
+          if (!this.activeGCD) {
+            new Spells({ game: this }).cure(selected);
+          }
+          break;
+        case 50:
+          console.log('2 key was pressed');
+          selected = this.findSelected();
+          if (!this.activeGCD) {
+            new Spells({ game: this }).regen(selected);
+          }
           break;
       }
     });
+  }
+
+  gcdWait(){
+    setTimeout(() => {
+      this.activeGCD = false;
+    }, 1500);
   }
 
   drawPlayerBox(ctx){
@@ -112,16 +183,10 @@ class Game {
 
   drawPlayerSpells(ctx){
     //manabar
-    ctx.fillStyle = '#0066cc';
-    ctx.beginPath();
-    ctx.rect(148, 433, 275, 21);
-    ctx.fill();
-
-    // castbar
-    ctx.fillStyle = '#9900cc';
-    ctx.beginPath();
-    ctx.rect(148, 463, 275, 21);
-    ctx.fill();
+    // ctx.fillStyle = '#0066cc';
+    // ctx.beginPath();
+    // ctx.rect(148, 433, 275, 21);
+    // ctx.fill();
 
     // spell 1
     ctx.fillStyle = '#99ccff';
@@ -163,12 +228,13 @@ class Game {
     ctx.fill();
 
     // monster box
-    ctx.fillStyle = '#33cc33';
-    ctx.beginPath();
-    ctx.rect(633, 104, 245, 350);
-    ctx.fill();
+    // ctx.fillStyle = '#33cc33';
+    // ctx.beginPath();
+    // ctx.rect(633, 104, 245, 350);
+    // ctx.fill();
 
     // monster cast bar
+    ctx.fillStyle = '#9900cc';
     ctx.beginPath();
     ctx.rect(605, 476, 300, 26);
     ctx.fill();
@@ -176,15 +242,14 @@ class Game {
 
 
   draw(ctx){
-    // clearing the view
-    ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
-    ctx.fillStyle = "#CCCCCC";
-    ctx.fillRect(0, 0, Game.DIM_X, Game.DIM_Y);
 
     // npc bounding box
     ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
     ctx.fillStyle = '#CCCCCC';
     ctx.fillRect(0, 0, Game.DIM_X, Game.DIM_Y);
+    
+    // ctx.beginPath();
+    ctx.drawImage(this.bg, 0, 0, Game.DIM_X, Game.DIM_Y);
 
     ctx.fillStyle = "#99ccff";
     ctx.beginPath();
@@ -203,9 +268,10 @@ class Game {
       member.draw(ctx);
       // this.showSelected();
     });
-
+    this.playerCastBar(ctx);
+    // this.logCurrHp();
     // this.findSelected();
-    
+    this.manaBar(ctx);
   }
 }
 

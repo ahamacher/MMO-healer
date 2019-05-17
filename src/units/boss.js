@@ -87,7 +87,6 @@ class Boss extends NPC {
         weights.push(idx);
       }
     });
-    debugger;
     const selectedIdx = Math.floor(Math.random() * weights.length);
     return weights[selectedIdx];
   }
@@ -95,9 +94,12 @@ class Boss extends NPC {
   attackRandom(){
     let selectedTarget = this.selectRandom();
     
-    if (selectedTarget.currentHp <= 0){
+    if (this.game.party[selectedTarget].currentHp <= 0){
       const alive = this.game.party.find(target => target.currentHp > 0);
-      selectedTarget = this.game.party.findIndex(alive);
+      console.log(alive, 'is alive');
+      console.log(selectedTarget);
+      debugger;
+      selectedTarget = this.game.party.indexOf(alive);
     }
     this.attack(this.game.party[selectedTarget]);
   }

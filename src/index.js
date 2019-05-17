@@ -14,8 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
   //temp
   const boss = document.getElementById('bahamut');
   const dead = document.getElementById('skull');
+  const bg = document.getElementById('dungeon1');
 
-  const options = { comp: { tank: 1, healer: 1, dps: 3 }, ctx, canvas: canvasEl, bossSrc: boss, dead, document: document };
+  const options = { comp: { tank: 1, healer: 1, dps: 3 }, ctx, canvas: canvasEl, bossSrc: boss, dead, document: document, bg };
 
   const game = new Game(options);
   new GameView(game, ctx).start();

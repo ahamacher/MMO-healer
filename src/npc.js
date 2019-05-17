@@ -1,4 +1,5 @@
 const Tank = require('./units/tank.js');
+const Spells = require("./spells.js");
 
 class NPC {
   constructor(options){
@@ -9,6 +10,7 @@ class NPC {
     this.color = options.color || "#CC22CC";
     this.pos = options.pos;
     this.buffs = [];
+    this.debuffs = [];
     this.selected = false;
     this.game = options.game;
 
@@ -25,10 +27,7 @@ class NPC {
     this.canvas.addEventListener('click', (e) => {
       const rect = this.canvas.getBoundingClientRect();
       if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))){
-        // this.game.selected(this);
-        // console.log(e.clientX, e.clientY);
-        // console.log(this);
-        // this.currentHp = this.currentHp - 25;
+
         this.game.clearSelected();
         this.selected = true;
         this.game.showSelected(this);
@@ -107,7 +106,31 @@ class NPC {
     }
     this.drawMaxHP(ctx);
     this.drawCurrentHp(ctx);
-    
+    // 120 is hardcoded currently to the refresh rate
+    this.statusAction(800);
+  }
+
+  statusAction(rate){
+    if (this.buffs.length > 0) {
+      this.buffs.forEach(buff => {
+        this.executeBuff(buff);
+        buff.duration -= rate;
+      });
+      console.log(this.buffs);
+      console.log(rate);
+      this.buffs = this.buffs.filter(buff => buff.duration > rate);
+      console.log(this.buffs);
+    }
+  }
+
+  executeBuff(buff){
+    switch (buff.type){
+      case "heal":
+        if (this.currentHp !== this.maxHp){
+          this.currentHp = this.currentHp + buff.heal;
+        }
+        break;
+    }
   }
 
   drawMaxHP(ctx) {
