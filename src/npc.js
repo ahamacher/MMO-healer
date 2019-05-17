@@ -24,32 +24,33 @@ class NPC {
     ctx.rect(
       this.pos[0],
       this.pos[1],
-      150, 150
+      76, 66
     );
-
-
     ctx.fill();
+
+    this.drawMaxHP(ctx);
+    this.drawCurrentHp(ctx);
   }
 
   drawMaxHP(ctx) {
-    const posX = this.pos[0] + 10;
-    const posY = this.pos[1] + 126; 
+    const posX = this.pos[0] + 5;
+    const posY = this.pos[1] + 48; 
     ctx.fillStyle = "#000000";
     
 
     ctx.beginPath();
     ctx.rect(
-      posX, posY, 130, 12
+      posX, posY, 66, 10
     );
 
     ctx.fill();
   }
 
   drawCurrentHp(ctx) {
-    const posX = this.pos[0] + 11;
-    const posY = this.pos[1] + 127;
+    const posX = this.pos[0] + 5;
+    const posY = this.pos[1] + 48;
     ctx.fillStyle = '#cc0000';
-    const currentHpVal = Math.floor((this.currentHp / this.maxHp) * 128);
+    const currentHpVal = Math.floor((this.currentHp / this.maxHp) * 66);
 
     ctx.beginPath();
     ctx.rect(

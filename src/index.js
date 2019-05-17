@@ -1,4 +1,5 @@
 const Game = require("./game.js");
+const GameView = require("./game_view.js");
 const NPC = require("./npc.js");
 
 
@@ -14,25 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.Game = Game;
   window.ctx = ctx;
   window.NPC = NPC;
-  window.makePlayer = () => {
-    const options = { maxHp: 200, attackRate: 1800, attackValue: 4, color: "#003399", pos: [40,40]};
-    const npc = new NPC(options);
-    npc.draw(ctx);
-    npc.drawMaxHP(ctx);
-    npc.drawCurrentHp(ctx);
-  }
+  window.options = {comp: { tank: 1, healer: 1, dps: 3 }};
 
-  window.makePlayer2 = () => {
-    const options2 = { maxHp: 200, attackRate: 1800, attackValue: 4, color: "#003399", pos: [40,40]};
-    const npc2 = new NPC(options2);
-    npc2.draw(ctx);
-    npc2.drawMaxHP(ctx);
-    npc2.receiveDamage(50);
-    npc2.drawCurrentHp(ctx);
-  };
 
-  // const game = new Game();
-  // new GameView(game, ctx).start();
+  const game = new Game(options);
+  new GameView(game, ctx).start();
 });
 
 // const options = { maxHp: 200, attackRate: 1800, attackValue: 4, color: "#003399", pos: [40,40]}
