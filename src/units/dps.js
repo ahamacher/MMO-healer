@@ -6,7 +6,7 @@ class Dps extends NPC {
     options.maxHp = 100;
     options.attackRate = 1500;
     options.attackValue = 8;
-    options.color = '#b30000';
+    options.color = '#990000';
     options.pos = options.pos;
     super(options);
 

@@ -64,13 +64,13 @@ class NPC {
 
   draw(ctx) {
     ctx.fillStyle = this.color;
-    if (this.selected){
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = "black";
-    }
     ctx.beginPath();
 
     if (this.isDead()){
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "black";
+      ctx.strokeRect(this.pos[0], this.pos[1], 76, 66);
+
       ctx.rect(
         this.pos[0],
         this.pos[1],
@@ -91,6 +91,9 @@ class NPC {
         50
       );
     } else {
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "white";
+      ctx.strokeRect(this.pos[0], this.pos[1], 76, 66);
 
       ctx.rect(
         this.pos[0],
@@ -99,6 +102,14 @@ class NPC {
         );
         ctx.fill();
       ctx.save();
+
+      if (this.selected){
+        // ctx.shadowBlur = 10;
+        // ctx.shadowColor = "white";
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'yellow';
+        ctx.strokeRect(this.pos[0], this.pos[1], 76, 66);
+      }
 
       ctx.restore();
       ctx.shadowBlur = 0;
@@ -116,18 +127,21 @@ class NPC {
         this.executeBuff(buff);
         buff.duration -= rate;
       });
-      console.log(this.buffs);
-      console.log(rate);
+      // console.log(this.buffs);
+      // console.log(rate);
       this.buffs = this.buffs.filter(buff => buff.duration > rate);
-      console.log(this.buffs);
+      // console.log(this.buffs);
     }
   }
 
   executeBuff(buff){
     switch (buff.type){
       case "heal":
+        this.game.healed += buff.heal;
         if (this.currentHp !== this.maxHp){
           this.currentHp = this.currentHp + buff.heal;
+        } else {
+          this.game.overheal += buff.heal;
         }
         break;
     }
@@ -138,7 +152,9 @@ class NPC {
     const posY = this.pos[1] + 48; 
     ctx.fillStyle = "#000000";
     
-
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "black";
+    ctx.strokeRect(posX, posY, 66, 10);
     ctx.beginPath();
     ctx.rect(
       posX, posY, 66, 10

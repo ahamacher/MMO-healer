@@ -73,6 +73,10 @@ class Boss extends NPC {
     ctx.fillStyle = '#cc0000';
     const currentHpVal = Math.floor((this.currentHp / this.maxHp) * 300);
 
+    if (this.currentHp <= 0){
+      setTimeout(() => { this.game.gameOver = true; }, 2000);
+    }
+
     ctx.beginPath();
     ctx.rect(
       posX, posY, currentHpVal, 26
@@ -96,9 +100,8 @@ class Boss extends NPC {
     
     if (this.game.party[selectedTarget].currentHp <= 0){
       const alive = this.game.party.find(target => target.currentHp > 0);
-      console.log(alive, 'is alive');
-      console.log(selectedTarget);
-      debugger;
+      // console.log(alive, 'is alive');
+      // console.log(selectedTarget);
       selectedTarget = this.game.party.indexOf(alive);
     }
     this.attack(this.game.party[selectedTarget]);

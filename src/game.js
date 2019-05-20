@@ -11,12 +11,19 @@ class Game {
     this.party = [];
     this.dead = options.dead;
     this.activeGCD = false;
+    this.gcdTime = 1800;
+    this.gcdRemaining = 1800;
     this.isCasting = false;
     this.castTimeInitial = 0;
     this.castTime = 0;
     this.spellText = "";
     this.mp = 1000;
     this.bg = options.bg;
+    this.spellIcons = options.spellIcons;
+    this.overheal = 0;
+    this.healed = 0;
+    this.gameOver = false;
+    
 
     // probably not needed
     this.ctx = options.ctx;
@@ -25,16 +32,10 @@ class Game {
     // creating units
     this.addFriendlyNpc(options.ctx, options.canvas);
     this.addBoss(options.ctx, options.canvas, options.bossSrc);
-    this.addPlayerSpells(options.document);
+    this.addPlayerSpells();
   }
 
-  logCurrHp(){
-    let hp = [];
-    this.party.forEach(member => {
-      hp.push(member.currentHp);
-    });
-    console.log(hp);
-  }
+  // l
 
   findSelected(){
     const selected = this.party.find(member => member.selected === true);
@@ -142,7 +143,7 @@ class Game {
     ctx.fillText("Mana", 285.5, 450.5);
   }
 
-  addPlayerSpells(document){
+  addPlayerSpells(){
     let selected;
     document.addEventListener('keydown', (e) => {
       switch (e.which){
@@ -160,15 +161,25 @@ class Game {
             new Spells({ game: this }).regen(selected);
           }
           break;
+        case 51:
+          console.log('3 key was pressed');
+          if (!this.activeGCD) {
+            new Spells({game: this}).aoeHeal();
+          }
+          break;
+        case 48:
+          console.log('0 key pressed, you gonna win!');
+          this.boss.currentHp = 1;
+          break;
       }
     });
   }
 
-  gcdWait(){
-    setTimeout(() => {
-      this.activeGCD = false;
-    }, 1500);
-  }
+  // gcdWait(){
+  //   setTimeout(() => {
+  //     this.activeGCD = false;
+  //   }, this.gcdTime);
+  // }
 
   drawPlayerBox(ctx){
     ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
@@ -181,28 +192,74 @@ class Game {
     ctx.fill();
   }
 
-  drawPlayerSpells(ctx){
-    //manabar
-    // ctx.fillStyle = '#0066cc';
-    // ctx.beginPath();
-    // ctx.rect(148, 433, 275, 21);
-    // ctx.fill();
+  animateGCD(ctx){
+    if (this.activeGCD) {
+      this.gcdRemaining = this.gcdRemaining - 120;
+      if (this.gcdRemaining <= 0){
+        this.activeGCD = false;
+        this.gcdRemaining = this.gcdTime;
+      }
+      // 1800/ 63 = x / crr time 
+      const gcdHeight = Math.floor((this.gcdRemaining / this.gcdTime) * 63);
+      
+      // spell 1
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.beginPath();
+      ctx.rect(40, 502, 63, gcdHeight);
+      ctx.fill();
 
+      // spell 2
+      ctx.beginPath();
+      ctx.rect(123, 502, 63, gcdHeight);
+      ctx.fill();
+
+      // spell 3
+      ctx.beginPath();
+      ctx.rect(206, 502, 63, gcdHeight);
+      ctx.fill();
+
+      // spell 4
+      ctx.beginPath();
+      ctx.rect(289, 502, 63, gcdHeight);
+      ctx.fill();
+
+      // spell 5
+      ctx.beginPath();
+      ctx.rect(372, 502, 63, gcdHeight);
+      ctx.fill();
+
+      // spell 6
+      ctx.beginPath();
+      ctx.rect(455, 502, 63, gcdHeight);
+      ctx.fill();
+    }
+  }
+
+  drawPlayerSpells(ctx){
     // spell 1
     ctx.fillStyle = '#99ccff';
-    ctx.beginPath();
-    ctx.rect(40, 502, 63, 63);
-    ctx.fill();
+    // ctx.beginPath();
+    // ctx.rect(40, 502, 63, 63);
+    // ctx.fill();
+    ctx.drawImage(
+      this.spellIcons.cureIcon, 40, 502,63,63
+    );
 
     // spell 2
-    ctx.beginPath();
-    ctx.rect(123, 502, 63, 63);
-    ctx.fill();
+    // ctx.beginPath();
+    // ctx.rect(123, 502, 63, 63);
+    // ctx.fill();
+    ctx.drawImage(
+      this.spellIcons.regenIcon, 123, 502, 63, 63
+    );
 
     // spell 3
-    ctx.beginPath();
-    ctx.rect(206, 502, 63, 63);
-    ctx.fill();
+    // ctx.beginPath();
+    // ctx.rect(206, 502, 63, 63);
+    // ctx.fill();
+    ctx.drawImage(
+      this.spellIcons.aoeHeal, 206, 502, 63, 63
+    );
 
     // spell 4
     ctx.beginPath();
@@ -251,7 +308,7 @@ class Game {
     // ctx.beginPath();
     ctx.drawImage(this.bg, 0, 0, Game.DIM_X, Game.DIM_Y);
 
-    ctx.fillStyle = "#99ccff";
+    ctx.fillStyle = "rgba(82, 82, 122, 0.5)";
     ctx.beginPath();
     ctx.rect(40, 40, 475, 375);
     ctx.fill();
@@ -272,6 +329,7 @@ class Game {
     // this.logCurrHp();
     // this.findSelected();
     this.manaBar(ctx);
+    this.animateGCD(ctx);
   }
 }
 

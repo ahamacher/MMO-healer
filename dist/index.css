@@ -1,6 +1,7 @@
 body {
   display: flex;
   justify-content: center;
+  background-color: black;
 }
 
 #bahamut {
@@ -14,6 +15,21 @@ body {
 }
 
 #dungeon1 {
+  display: none;
+  position: absolute;
+}
+
+#cure {
+  display: none;
+  position: absolute;
+}
+
+#regen {
+  display: none;
+  position: absolute;
+}
+
+#aoeheal {
   display: none;
   position: absolute;
 }

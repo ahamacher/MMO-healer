@@ -6,7 +6,7 @@ class Healer extends NPC {
     options.maxHp = 100;
     options.attackRate = 1800;
     options.attackValue = 0;
-    options.color = '#33cc33';
+    options.color = '#009933';
     options.pos = options.pos;
     super(options);
     this.weight = this.calcWeight();
