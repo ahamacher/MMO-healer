@@ -1,0 +1,36 @@
+body {
+  display: flex;
+  justify-content: center;
+  background-color: black;
+}
+
+#bahamut {
+  display: none;
+  position: absolute;
+}
+
+#skull {
+  display: none;
+  position: absolute;
+}
+
+#dungeon1 {
+  display: none;
+  position: absolute;
+}
+
+#cure {
+  display: none;
+  position: absolute;
+}
+
+#regen {
+  display: none;
+  position: absolute;
+}
+
+#aoeheal {
+  display: none;
+  position: absolute;
+}
+
