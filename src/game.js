@@ -297,8 +297,20 @@ class Game {
     ctx.fill();
   }
 
+  bossAttack(){
+    if (this.boss.timeSinceAttack < this.boss.attackRate && !this.boss.casting) {
+      this.boss.timeSinceAttack += Game.SPEED;
+    } else if (!this.boss.casting) {
+      this.boss.attackRandom();
+      this.boss.timeSinceAttack = 0;
+    }
+  }
+
 
   draw(ctx){
+    // boss attacks
+    this.bossAttack();
+
 
     // npc bounding box
     ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
@@ -335,7 +347,7 @@ class Game {
 
 Game.DIM_X = 1000;
 Game.DIM_Y = 600;
-Game.FPS = 30;
+Game.SPEED = 120;
 
 Game.NPC_POS = [
   [57,90], [148, 90], [239,90], [330,90], [421,90],

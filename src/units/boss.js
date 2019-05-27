@@ -10,17 +10,11 @@ class Boss extends NPC {
     options.pos = options.pos;
     super(options);
     this.bossSrc = options.bossSrc;
-
-    this.startAttack();
+    this.casting = false;
+    this.castTime = 0;
+    this.currentCastTime = 0;
+    this.timeSinceAttack = 0;
   }
-
-  startAttack(){
-    setInterval(() => {
-      this.attackRandom();
-    }, this.attackRate);
-  }
-
-
 
     // // monster box
     // ctx.fillStyle = '#33cc33';
@@ -34,6 +28,7 @@ class Boss extends NPC {
     // ctx.fill();
 // 1.317
 // 186 nat
+
 
   draw(ctx){
     if (this.isDead()){

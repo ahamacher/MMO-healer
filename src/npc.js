@@ -6,6 +6,7 @@ class NPC {
     this.maxHp = options.maxHp;
     this.currentHp = options.maxHp;
     this.attackRate = options.attackRate || 1500;
+    this.timeSinceAttack = 0;
     this.attackValue = options.attackValue;
     this.color = options.color || "#CC22CC";
     this.pos = options.pos;
@@ -17,23 +18,46 @@ class NPC {
     this.ctx = options.ctx;
     this.canvas = options.canvas;
 
+    this.toggleClickable();
     this.startAttack();
+  }
 
+  toggleClickable() {
+    const boundSelector = this.selector.bind(this);
+    // const backing = new Path2D();
+    // backing.rect(this.pos[0], this.pos[1], 76, 66);
+    // this.ctx.fillStyle = "#000000";
+    // this.ctx.fill(backing);
+
+    // function selector(e) {
+    //   const rect = this.canvas.getBoundingClientRect();
+    //   if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
+    //     console.log("still here friendo");
+    //     this.game.clearSelected();
+    //     this.selected = true;
+    //     this.game.showSelected(this);
+    //   }
+    // }
+    if (!this.game.gameover) {
+      this.canvas.addEventListener('click', boundSelector);
+    } else {
+      this.canvas.removeEventListener('click', boundSelector);
+    }
+  }
+
+  selector(e){
     const backing = new Path2D();
     backing.rect(this.pos[0], this.pos[1], 76, 66);
-    this.ctx.fillStyle = "#000000";
+    this.ctx.fillStyle = "rgba(0,0,0,0.01)";
     this.ctx.fill(backing);
 
-    this.canvas.addEventListener('click', (e) => {
-      const rect = this.canvas.getBoundingClientRect();
-      if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))){
-
-        this.game.clearSelected();
-        this.selected = true;
-        this.game.showSelected(this);
-      }
-    });
-
+    const rect = this.canvas.getBoundingClientRect();
+    if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
+      console.log("still here friendo");
+      this.game.clearSelected();
+      this.selected = true;
+      this.game.showSelected(this);
+    }
   }
 
   startAttack(){

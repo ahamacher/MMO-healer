@@ -68,6 +68,13 @@ class GameView {
       }
     });
 
+    this.game.party.forEach(member => {
+      member.toggleClickable();
+    });
+
+    // remove the interval
+    console.log("gameoverrrr");
+    clearInterval(this.gameplay);
     // gameover screen
 
     this.ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
@@ -118,7 +125,6 @@ class GameView {
 
       this.level1();
     }});
-
     document.getElementById('bossfight').pause();
     document.getElementById('bossfight').currentTime = 0;
 
@@ -145,13 +151,13 @@ class GameView {
 
     this.game = new Game(options);
     
-    setInterval(() => {
+    this.gameplay = setInterval(() => {
       if (this.game.gameOver) {
         this.gameOverScreen();
       } else {
         this.game.draw(this.ctx);
       }
-    }, 120);
+    }, Game.SPEED);
   }
 }
 
