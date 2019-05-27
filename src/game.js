@@ -69,19 +69,19 @@ class Game {
     let k = 0;
 
     while (i < this.comp.tank){
-      this.party.push(new Tank({pos: Game.NPC_POS[pos], ctx, canvas, game: this }));
+      this.party.push(new Tank({pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED}));
       // this.addNpcListener(pos);
       pos = pos + 1;
       i = i + 1;
     }
     while (j < this.comp.healer){
-      this.party.push(new Healer({pos: Game.NPC_POS[pos], ctx, canvas, game: this }));
+      this.party.push(new Healer({ pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED}));
       // this.addNpcListener(pos);
       pos = pos + 1;
       j = j + 1;
     }
     while (k < this.comp.dps){
-      this.party.push(new Dps({pos: Game.NPC_POS[pos], ctx, canvas,game: this }));
+      this.party.push(new Dps({ pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED}));
       // this.addNpcListener(pos);
       pos = pos + 1;
       k = k + 1;
@@ -297,7 +297,7 @@ class Game {
     ctx.fill();
   }
 
-  bossAttack(){
+  bossAttack() {
     if (this.boss.timeSinceAttack < this.boss.attackRate && !this.boss.casting) {
       this.boss.timeSinceAttack += Game.SPEED;
     } else if (!this.boss.casting) {
@@ -306,11 +306,21 @@ class Game {
     }
   }
 
+  playerAttack() {
+    this.party.forEach(member => {
+      if (member.timeSinceAttack < member.attackRate) {
+        member.timeSinceAttack += Game.SPEED;
+      } else {
+        member.attack(this.boss);
+        member.timeSinceAttack = 0;
+      }
+    });
+  }
 
   draw(ctx){
     // boss attacks
     this.bossAttack();
-
+    this.playerAttack();
 
     // npc bounding box
     ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
@@ -347,7 +357,7 @@ class Game {
 
 Game.DIM_X = 1000;
 Game.DIM_Y = 600;
-Game.SPEED = 120;
+Game.SPEED = 60;
 
 Game.NPC_POS = [
   [57,90], [148, 90], [239,90], [330,90], [421,90],

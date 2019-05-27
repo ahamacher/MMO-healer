@@ -92,14 +92,13 @@ class Boss extends NPC {
 
   attackRandom(){
     let selectedTarget = this.selectRandom();
-    
+    const alive = this.game.party.find(target => target.currentHp > 0);
     if (this.game.party[selectedTarget].currentHp <= 0){
-      const alive = this.game.party.find(target => target.currentHp > 0);
-      // console.log(alive, 'is alive');
-      // console.log(selectedTarget);
       selectedTarget = this.game.party.indexOf(alive);
     }
-    this.attack(this.game.party[selectedTarget]);
+    if (alive) {
+      this.attack(this.game.party[selectedTarget]);
+    }
   }
 
 }

@@ -73,7 +73,6 @@ class GameView {
     });
 
     // remove the interval
-    console.log("gameoverrrr");
     clearInterval(this.gameplay);
     // gameover screen
 

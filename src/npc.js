@@ -1,5 +1,6 @@
 const Tank = require('./units/tank.js');
 const Spells = require("./spells.js");
+const Game = require("./game.js");
 
 class NPC {
   constructor(options){
@@ -14,12 +15,11 @@ class NPC {
     this.debuffs = [];
     this.selected = false;
     this.game = options.game;
-
     this.ctx = options.ctx;
     this.canvas = options.canvas;
 
     this.toggleClickable();
-    this.startAttack();
+    this.speed = options.speed;
   }
 
   toggleClickable() {
@@ -60,11 +60,11 @@ class NPC {
     }
   }
 
-  startAttack(){
-    setInterval(() => {
-      this.attack(this.game.boss);
-    }, this.attackRate);
-  }
+  // startAttack(){
+  //   setInterval(() => {
+  //     this.attack(this.game.boss);
+  //   }, this.attackRate);
+  // }
 
   attack(target){
     if (target.currentHp > 0 && this.currentHp > 0){
@@ -142,19 +142,22 @@ class NPC {
     this.drawMaxHP(ctx);
     this.drawCurrentHp(ctx);
     // 120 is hardcoded currently to the refresh rate
-    this.statusAction(800);
+    this.statusAction(this.speed);
   }
 
-  statusAction(rate){
+  statusAction(speed){
     if (this.buffs.length > 0) {
       this.buffs.forEach(buff => {
-        this.executeBuff(buff);
-        buff.duration -= rate;
+        if (buff.activation <= 500) {
+          buff.activation += speed;
+
+        } else {
+          this.executeBuff(buff);
+          buff.duration -= buff.activation;
+          buff.activation = 0;
+        }
       });
-      // console.log(this.buffs);
-      // console.log(rate);
-      this.buffs = this.buffs.filter(buff => buff.duration > rate);
-      // console.log(this.buffs);
+      this.buffs = this.buffs.filter(buff => buff.duration > 0);
     }
   }
 
@@ -163,7 +166,7 @@ class NPC {
       case "heal":
         this.game.healed += buff.heal;
         if (this.currentHp !== this.maxHp){
-          this.currentHp = this.currentHp + buff.heal;
+          this.currentHp += buff.heal;
         } else {
           this.game.overheal += buff.heal;
         }
