@@ -126,6 +126,7 @@ class NPC {
   statusAction(speed){
     if (this.buffs.length > 0) {
       this.buffs.forEach(buff => {
+        if (!this.isDead()) {
         if (buff.activation <= 500) {
           buff.activation += speed;
 
@@ -134,6 +135,9 @@ class NPC {
           buff.duration -= buff.activation;
           buff.activation = 0;
         }
+      } else {
+        buff.duration = 0;
+      }
       });
       this.buffs = this.buffs.filter(buff => buff.duration > 0);
     }
@@ -184,7 +188,7 @@ class NPC {
   receiveBuff(buff){
     // buffs should come in with a buff type
     // buffs should come in with a duration
-
+    // buffs should come in with an activiation
     this.buffs.push(buff);
   }
 

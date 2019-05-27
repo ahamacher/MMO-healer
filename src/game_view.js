@@ -126,6 +126,15 @@ class GameView {
 
     document.getElementById('bossfight').play();
 
+    let aoeRegen = new Image(1,1);
+    aoeRegen.src = "./spellicons/assize.png";
+
+    let esuna = new Image(1,1);
+    esuna.src = "./spellicons/esuna.png";
+
+    let revive = new Image(1,1);
+    revive.src = "./spellicons/verraise.png";
+
     const canvasEl = document.getElementById('game-canvas');
     const ctx = canvasEl.getContext("2d");
     const boss = document.getElementById('bahamut');
@@ -136,7 +145,8 @@ class GameView {
     const regenIcon = document.getElementById('regen');
     const aoeHeal = document.getElementById('aoeheal');
 
-    const spellIcons = { cureIcon, regenIcon, aoeHeal };
+
+    const spellIcons = { cureIcon, regenIcon, aoeHeal, aoeRegen, esuna, revive };
 
     const options = {
       comp: { tank: 1, healer: 1, dps: 3 },

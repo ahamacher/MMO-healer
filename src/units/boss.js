@@ -14,6 +14,7 @@ class Boss extends NPC {
     this.castTime = 0;
     this.currentCastTime = 0;
     this.timeSinceAttack = 0;
+    this.currentSpell = null;
   }
 
     // // monster box

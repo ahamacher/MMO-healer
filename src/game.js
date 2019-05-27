@@ -3,6 +3,7 @@ const Healer = require("./units/healer.js");
 const Dps = require("./units/dps.js");
 const Boss = require("./units/boss.js");
 const Spells = require("./spells.js");
+const BossSpells = require("./units/boss_spells.js");
 
 class Game {
   constructor(options){
@@ -23,7 +24,6 @@ class Game {
     this.overheal = 0;
     this.healed = 0;
     this.gameOver = false;
-    
 
     // probably not needed
     this.ctx = options.ctx;
@@ -33,9 +33,14 @@ class Game {
     this.addFriendlyNpc(options.ctx, options.canvas);
     this.addBoss(options.ctx, options.canvas, options.bossSrc);
     this.addPlayerSpells();
-  }
+    this.makeBossSpells();
 
-  // l
+    this.castBossSpell('ahkmorn');
+
+    // setInterval(() => {
+    //   this.castBossSpell('flare');
+    // }, 15000);
+  }
 
   findSelected(){
     const selected = this.party.find(member => member.selected === true);
@@ -167,12 +172,6 @@ class Game {
     });
   }
 
-  // gcdWait(){
-  //   setTimeout(() => {
-  //     this.activeGCD = false;
-  //   }, this.gcdTime);
-  // }
-
   drawPlayerBox(ctx){
     ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
     ctx.fillStyle = '#CCCCCC';
@@ -230,43 +229,34 @@ class Game {
   drawPlayerSpells(ctx){
     // spell 1
     ctx.fillStyle = '#99ccff';
-    // ctx.beginPath();
-    // ctx.rect(40, 502, 63, 63);
-    // ctx.fill();
     ctx.drawImage(
       this.spellIcons.cureIcon, 40, 502,63,63
     );
 
     // spell 2
-    // ctx.beginPath();
-    // ctx.rect(123, 502, 63, 63);
-    // ctx.fill();
     ctx.drawImage(
       this.spellIcons.regenIcon, 123, 502, 63, 63
     );
 
     // spell 3
-    // ctx.beginPath();
-    // ctx.rect(206, 502, 63, 63);
-    // ctx.fill();
     ctx.drawImage(
       this.spellIcons.aoeHeal, 206, 502, 63, 63
     );
 
     // spell 4
-    ctx.beginPath();
-    ctx.rect(289, 502, 63, 63);
-    ctx.fill();
+    ctx.drawImage(
+      this.spellIcons.aoeRegen, 289, 502, 63, 63
+    );
 
     // spell 5
-    ctx.beginPath();
-    ctx.rect(372, 502, 63, 63);
-    ctx.fill();
+    ctx.drawImage(
+      this.spellIcons.esuna, 372, 502, 63, 63
+    );
 
     // spell 6
-    ctx.beginPath();
-    ctx.rect(455, 502, 63, 63);
-    ctx.fill();
+    ctx.drawImage(
+      this.spellIcons.revive, 455, 502, 63, 63
+    );
   }
 
   drawMonsterBox(ctx){
@@ -283,10 +273,10 @@ class Game {
     // ctx.fill();
 
     // monster cast bar
-    ctx.fillStyle = '#9900cc';
-    ctx.beginPath();
-    ctx.rect(605, 476, 300, 26);
-    ctx.fill();
+    // ctx.fillStyle = '#9900cc';
+    // ctx.beginPath();
+    // ctx.rect(605, 476, 300, 26);
+    // ctx.fill();
   }
 
   bossAttack() {
@@ -295,6 +285,38 @@ class Game {
     } else if (!this.boss.casting) {
       this.boss.attackRandom();
       this.boss.timeSinceAttack = 0;
+    }
+  }
+
+  makeBossSpells() {
+    const options = { game: this, boss: this.boss, party: this.party };
+    this.bossSpells = new BossSpells(options);
+  }
+
+  castBossSpell(spell) {
+    this.bossSpells[`${spell}`]();
+  }
+
+  bossCastBar(ctx){
+    if (this.boss.casting) {
+      let barLength = ((this.boss.currentCastTime / this.boss.castTime) * 300);
+
+      ctx.fillStyle = '#000000';
+      ctx.beginPath();
+      ctx.rect(605, 476, 300, 26);
+      ctx.fill();
+
+      ctx.fillStyle = '#9900cc';
+      ctx.beginPath();
+      ctx.rect(605, 476, barLength, 26);
+      ctx.fill();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = "18px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(this.boss.currentSpell, 755, 496);
+
+      this.boss.currentCastTime += Game.SPEED;
     }
   }
 
@@ -342,6 +364,7 @@ class Game {
     this.playerCastBar(ctx);
     this.manaBar(ctx);
     this.animateGCD(ctx);
+    this.bossCastBar(ctx);
   }
 }
 

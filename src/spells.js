@@ -7,8 +7,10 @@ class Spells {
     // add cast time and animation
     if (this.game.mp > 10){
       setTimeout(() => {
-        target.currentHp += 20;
-        this.game.healed += 20;
+        if (!target.isDead()){
+          target.currentHp += 20;
+          this.game.healed += 20;
+        }
         if (target.currentHp > target.maxHp){
           this.game.overheal += target.currentHp - target.maxHp;
           target.currentHp = target.maxHp;
@@ -36,8 +38,10 @@ class Spells {
     if (this.game.mp > 30) {
       setTimeout(() => {
         this.game.party.forEach(member => {
-          member.currentHp += 15;
-          this.game.healed += 15;
+          if (!member.isDead()){
+            member.currentHp += 15;
+            this.game.healed += 15;
+          }
           if (member.currentHp > member.maxHp) {
             this.game.overheal += member.currentHp - member.maxHp;
             member.currentHp = member.maxHp;
