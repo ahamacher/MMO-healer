@@ -48,10 +48,6 @@ class Game {
     return selected;
   }
 
-  showSelected(member){
-    console.log(member);
-  }
-
   clearSelected(){
     this.party.forEach(member => {
       member.selected = false;
@@ -95,7 +91,7 @@ class Game {
   playerCastBar(ctx) {
     if (this.isCasting){
       let barLength = ((this.castTime / this.castTimeInitial) * 275);
-      if (this.castTime < 120) {
+      if (this.castTime < Game.SPEED) {
         barLength = 0;
       }
 
@@ -114,7 +110,7 @@ class Game {
       ctx.textAlign = "center";
       ctx.fillText(this.spellText, 285.5, 480.5);
 
-      this.castTime += 120;
+      this.castTime += Game.SPEED;
     }
     if (this.castTime >= this.castTimeInitial){
       this.castTime = 0;
@@ -148,27 +144,23 @@ class Game {
     document.addEventListener('keydown', (e) => {
       switch (e.which){
         case 49:
-          console.log('1 key was pressed');
           selected = this.findSelected();
           if (!this.activeGCD) {
             new Spells({ game: this }).cure(selected);
           }
           break;
         case 50:
-          console.log('2 key was pressed');
           selected = this.findSelected();
           if (!this.activeGCD) {
             new Spells({ game: this }).regen(selected);
           }
           break;
         case 51:
-          console.log('3 key was pressed');
           if (!this.activeGCD) {
             new Spells({game: this}).aoeHeal();
           }
           break;
         case 48:
-          console.log('0 key pressed, you gonna win!');
           this.boss.currentHp = 1;
           break;
       }
@@ -194,7 +186,7 @@ class Game {
 
   animateGCD(ctx){
     if (this.activeGCD) {
-      this.gcdRemaining = this.gcdRemaining - 120;
+      this.gcdRemaining = this.gcdRemaining - Game.SPEED;
       if (this.gcdRemaining <= 0){
         this.activeGCD = false;
         this.gcdRemaining = this.gcdTime;
@@ -348,8 +340,6 @@ class Game {
       // this.showSelected();
     });
     this.playerCastBar(ctx);
-    // this.logCurrHp();
-    // this.findSelected();
     this.manaBar(ctx);
     this.animateGCD(ctx);
   }
@@ -357,7 +347,7 @@ class Game {
 
 Game.DIM_X = 1000;
 Game.DIM_Y = 600;
-Game.SPEED = 60;
+Game.SPEED = 33;
 
 Game.NPC_POS = [
   [57,90], [148, 90], [239,90], [330,90], [421,90],

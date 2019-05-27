@@ -34,3 +34,13 @@ body {
   position: absolute;
 }
 
+#sound-on {
+  display: none;
+  position: absolute;
+}
+
+#sound-off {
+  display: none;
+  position: absolute;
+}
+

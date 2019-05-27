@@ -24,20 +24,6 @@ class NPC {
 
   toggleClickable() {
     const boundSelector = this.selector.bind(this);
-    // const backing = new Path2D();
-    // backing.rect(this.pos[0], this.pos[1], 76, 66);
-    // this.ctx.fillStyle = "#000000";
-    // this.ctx.fill(backing);
-
-    // function selector(e) {
-    //   const rect = this.canvas.getBoundingClientRect();
-    //   if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
-    //     console.log("still here friendo");
-    //     this.game.clearSelected();
-    //     this.selected = true;
-    //     this.game.showSelected(this);
-    //   }
-    // }
     if (!this.game.gameover) {
       this.canvas.addEventListener('click', boundSelector);
     } else {
@@ -53,18 +39,10 @@ class NPC {
 
     const rect = this.canvas.getBoundingClientRect();
     if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
-      console.log("still here friendo");
       this.game.clearSelected();
       this.selected = true;
-      this.game.showSelected(this);
     }
   }
-
-  // startAttack(){
-  //   setInterval(() => {
-  //     this.attack(this.game.boss);
-  //   }, this.attackRate);
-  // }
 
   attack(target){
     if (target.currentHp > 0 && this.currentHp > 0){
@@ -127,13 +105,13 @@ class NPC {
         ctx.fill();
       ctx.save();
 
+    }
       if (this.selected){
         // ctx.shadowBlur = 10;
         // ctx.shadowColor = "white";
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'yellow';
         ctx.strokeRect(this.pos[0], this.pos[1], 76, 66);
-      }
 
       ctx.restore();
       ctx.shadowBlur = 0;

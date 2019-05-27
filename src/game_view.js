@@ -5,6 +5,7 @@ class GameView {
     this.ctx = ctx;
 
     this.canvas = document.getElementById('game-canvas');
+    this.music = true;
   }
 
   start(){
@@ -42,27 +43,23 @@ class GameView {
     document.removeEventListener('keydown', (e) => {
       switch (e.which) {
         case 49:
-          console.log('1 key was pressed');
           selected = this.findSelected();
           if (!this.activeGCD) {
             new Spells({ game: this }).cure(selected);
           }
           break;
         case 50:
-          console.log('2 key was pressed');
           selected = this.findSelected();
           if (!this.activeGCD) {
             new Spells({ game: this }).regen(selected);
           }
           break;
         case 51:
-          console.log('3 key was pressed');
           if (!this.activeGCD) {
             new Spells({ game: this }).aoeHeal();
           }
           break;
         case 48:
-          console.log('0 key pressed, you gonna win!');
           this.boss.currentHp = 1;
           break;
       }
@@ -155,8 +152,44 @@ class GameView {
         this.gameOverScreen();
       } else {
         this.game.draw(this.ctx);
+        
       }
+      this.pauseToggle();
     }, Game.SPEED);
+  }
+
+  pauseToggle() {
+    const backing = new Path2D();
+    backing.rect(925, 25, 25, 25);
+    this.ctx.fillStyle = "rgba(0,0,0,0.01)";
+    this.ctx.fill(backing);
+
+    let soundIcon;
+    if (this.music) {
+      soundIcon = document.getElementById('sound-on');
+    } else {
+      soundIcon = document.getElementById('sound-off');
+    }
+
+    this.renderSound(soundIcon);
+
+    this.canvas.addEventListener('mouseup', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
+        if (this.music) {
+          document.getElementById('bossfight').pause();
+        } else {
+          document.getElementById('bossfight').play();
+        }
+        this.music = !this.music;
+      }
+    });
+  }
+
+  renderSound(soundIcon) {
+    this.ctx.drawImage(
+      soundIcon, 925, 25, 25, 25
+    );
   }
 }
 

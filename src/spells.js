@@ -7,7 +7,6 @@ class Spells {
     // add cast time and animation
     if (this.game.mp > 10){
       setTimeout(() => {
-        console.log(`cure was used!`);
         target.currentHp += 20;
         this.game.healed += 20;
         if (target.currentHp > target.maxHp){
@@ -21,7 +20,6 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 1500;
-      // this.game.gcdWait();
     }
   }
 
