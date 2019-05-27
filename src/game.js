@@ -35,7 +35,7 @@ class Game {
     this.addPlayerSpells();
     this.makeBossSpells();
 
-    this.castBossSpell('ahkmorn');
+    // this.castBossSpell('ahkmorn');
 
     // setInterval(() => {
     //   this.castBossSpell('flare');
@@ -265,18 +265,6 @@ class Game {
     ctx.beginPath();
     ctx.rect(605, 55, 300, 26);
     ctx.fill();
-
-    // monster box
-    // ctx.fillStyle = '#33cc33';
-    // ctx.beginPath();
-    // ctx.rect(633, 104, 245, 350);
-    // ctx.fill();
-
-    // monster cast bar
-    // ctx.fillStyle = '#9900cc';
-    // ctx.beginPath();
-    // ctx.rect(605, 476, 300, 26);
-    // ctx.fill();
   }
 
   bossAttack() {
@@ -331,10 +319,20 @@ class Game {
     });
   }
 
+  checkBossHp() {
+    const currentHpPc = Math.floor(this.boss.currentHp / this.boss.maxHp * 100);
+    console.log(currentHpPc);
+    if (currentHpPc < 20 && !this.boss.ahkCast) {
+      this.castBossSpell('ahkmorn');
+      this.boss.ahkCast = true;
+    }
+  }
+
   draw(ctx){
     // boss attacks
     this.bossAttack();
     this.playerAttack();
+    this.checkBossHp();
 
     // npc bounding box
     ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);

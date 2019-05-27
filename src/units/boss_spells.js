@@ -3,6 +3,7 @@ class BossSpells {
     this.target = options.target;
     this.boss = options.boss;
     this.game = options.game;
+    this.ahkCast = false;
     this.ahkmornCount = 0;
     this.delay = 500;
   }
