@@ -23,6 +23,7 @@ class Game {
     this.spellIcons = options.spellIcons;
     this.overheal = 0;
     this.healed = 0;
+    this.deathCount = 0;
     this.gameOver = false;
 
     // probably not needed

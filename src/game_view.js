@@ -90,6 +90,11 @@ class GameView {
     this.ctx.textAlign = "center";
     this.ctx.fillText(overhealText, Game.DIM_X / 2, Game.DIM_Y / 2 );
 
+    this.ctx.fillStyle = 'FFFFFF';
+    this.ctx.font = "24px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(this.game.deathCount, Game.DIM_X / 2, (Game.DIM_Y / 2) + 30);
+
     this.ctx.fillStyle = 'FF0000';
     this.ctx.font = "24px Arial";
     this.ctx.textAlign = "center";
