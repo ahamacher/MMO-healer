@@ -103,12 +103,24 @@ class Spells {
       setTimeout(() => {
         target.currentHp = Math.floor(target.maxHp * 0.35);
         this.game.mp = this.game.mp - 100;
-      }, 2200);
+      }, 3600);
       this.game.activeGCD = true;
       this.game.spellText = "Revive";
       this.game.castTime = 0;
       this.game.isCasting = true;
-      this.game.castTimeInitial = 2200;
+      this.game.castTimeInitial = 3600;
+    }
+  }
+
+  impactHeal(target) {
+    if (this.game.mp > 50) {
+      target.currentHp += Math.floor(target.maxHp * 0.35);
+      if (target.currentHp > target.maxHp) {
+        this.game.overheal += (target.currentHp - target.maxHp);
+        target.currentHp = target.maxHp;
+      }
+      this.game.mp = this.game.mp - 50;
+      this.game.impactCD = 20000;
     }
   }
 }

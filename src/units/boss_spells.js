@@ -34,7 +34,7 @@ class BossSpells {
     const { party } = this.game;
     const random = Math.floor(Math.random() * 2);
     const selectedTank = party[random];
-    const heavyDmg = selectedTank.maxHp * 0.8;
+    const heavyDmg = selectedTank.maxHp * 0.6;
 
     this.boss.currentSpell = "Life Shaver";
     this.boss.casting = true;

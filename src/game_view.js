@@ -79,6 +79,7 @@ class GameView {
 
     const overhealVal = Math.floor((this.game.overheal/this.game.healed) * 100);
     const overhealText = "Overheal percentage %" + overhealVal;
+    const deathCountText = "Death count: " + this.game.deathCount;
 
     const eb = new Path2D();
     eb.rect(360,304,280,2);
@@ -93,7 +94,7 @@ class GameView {
     this.ctx.fillStyle = 'FFFFFF';
     this.ctx.font = "24px Arial";
     this.ctx.textAlign = "center";
-    this.ctx.fillText(this.game.deathCount, Game.DIM_X / 2, (Game.DIM_Y / 2) + 30);
+    this.ctx.fillText(deathCountText, Game.DIM_X / 2, (Game.DIM_Y / 2) + 30);
 
     this.ctx.fillStyle = 'FF0000';
     this.ctx.font = "24px Arial";

@@ -49,6 +49,9 @@ class NPC {
       target.currentHp = target.currentHp - this.attackValue;
     }
     if (target.currentHp < 0){
+      if (target !== this.game.boss) {
+        this.game.deathCount += 1;
+      }
       target.currentHp = 0;
     }
   }

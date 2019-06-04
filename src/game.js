@@ -26,6 +26,13 @@ class Game {
     this.deathCount = 0;
     this.gameOver = false;
 
+    this.impactCD = 0;
+    this.impactMaxCD = 20000;
+
+    // boss spell counters for hp % timers
+    this.busterCount = 0;
+    this.flareCount = 0;
+
     // probably not needed
     this.ctx = options.ctx;
     this.canvas = options.canvas;
@@ -36,11 +43,6 @@ class Game {
     this.addPlayerSpells();
     this.makeBossSpells();
 
-    // this.castBossSpell('ahkmorn');
-
-    // setInterval(() => {
-    //   this.castBossSpell('flare');
-    // }, 15000);
   }
 
   findSelected(){
@@ -60,6 +62,17 @@ class Game {
     });
   }
 
+  deadPlayerCheck(){
+    let player;
+    this.party.forEach(member => {
+      if (member.attackValue === 0) {
+        player = member;
+      }
+    });
+    if (player.currentHp === 0){
+      this.gameOver = true;
+    }
+  }
 
   addFriendlyNpc(ctx, canvas){
     if (this.comp.tank + this.comp.healer + this.comp.dps > 20){
@@ -166,6 +179,22 @@ class Game {
             new Spells({game: this}).aoeHeal();
           }
           break;
+        case 52:
+          if (!this.activeGCD) {
+            new Spells({game: this}).aoeRegen();
+          }
+          break;
+        case 53:
+          if (!this.activeGCD) {
+            new Spells({game: this}).esuna();
+          }
+          break;
+        case 54:
+          selected = this.findSelected();
+          if (this.impactCD === 0) {
+            new Spells({ game: this }).impactHeal(selected);
+          }
+          break;
         case 48:
           this.boss.currentHp = 1;
           break;
@@ -225,6 +254,22 @@ class Game {
       ctx.rect(455, 502, 63, gcdHeight);
       ctx.fill();
     }
+  }
+
+  animateSpellCD(ctx){
+    if (this.impactCD) {
+      this.impactCD = this.impactCD - Game.SPEED;
+      if (this.impactCD <= 0) {
+        this.impactCD = 0;
+      }
+    }
+      // 1800/ 63 = x / crr time 
+    const impactCDHeight = Math.floor((this.impactCD / this.impactMaxCD) * 63);
+
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath();
+    ctx.rect(455, 502, 63, impactCDHeight);
+    ctx.fill();
   }
 
   drawPlayerSpells(ctx){
@@ -323,6 +368,22 @@ class Game {
   checkBossHp() {
     const currentHpPc = Math.floor(this.boss.currentHp / this.boss.maxHp * 100);
     console.log(currentHpPc);
+    if (currentHpPc < 95 && this.flareCount === 0){
+      this.flareCount += 1;
+      this.castBossSpell('flare');
+    }
+    if (currentHpPc < 85 && this.busterCount === 0) {
+      this.busterCount += 1;
+      this.castBossSpell('lifeShaver');
+    }
+    if (currentHpPc < 65 && this.busterCount === 1) {
+      this.busterCount += 1;
+      this.castBossSpell('lifeShaver');
+    }
+    if (currentHpPc < 45 && this.busterCount === 2) {
+      this.busterCount += 1;
+      this.castBossSpell('lifeShaver');
+    }
     if (currentHpPc < 20 && !this.boss.ahkCast) {
       this.castBossSpell('ahkmorn');
       this.boss.ahkCast = true;
@@ -363,7 +424,9 @@ class Game {
     this.playerCastBar(ctx);
     this.manaBar(ctx);
     this.animateGCD(ctx);
+    this.animateSpellCD(ctx);
     this.bossCastBar(ctx);
+    this.deadPlayerCheck();
   }
 }
 
