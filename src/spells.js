@@ -113,7 +113,7 @@ class Spells {
   }
 
   impactHeal(target) {
-    if (this.game.mp > 50) {
+    if (this.game.mp > 50 && target.currentHp > 0) {
       target.currentHp += Math.floor(target.maxHp * 0.35);
       if (target.currentHp > target.maxHp) {
         this.game.overheal += (target.currentHp - target.maxHp);

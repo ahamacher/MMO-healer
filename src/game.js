@@ -185,14 +185,22 @@ class Game {
           }
           break;
         case 53:
-          if (!this.activeGCD) {
-            new Spells({game: this}).esuna();
-          }
-          break;
-        case 54:
+          // if (!this.activeGCD) {
+          //   new Spells({game: this}).esuna();
+          // }
           selected = this.findSelected();
           if (this.impactCD === 0) {
             new Spells({ game: this }).impactHeal(selected);
+          }
+          break;
+        case 54:
+          // selected = this.findSelected();
+          // if (this.impactCD === 0) {
+          //   new Spells({ game: this }).impactHeal(selected);
+          // }
+          selected = this.findSelected();
+          if (selected.currentHp === 0) {
+            new Spells({ game: this }).revive(selected);
           }
           break;
         case 48:
@@ -268,7 +276,7 @@ class Game {
 
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.beginPath();
-    ctx.rect(455, 502, 63, impactCDHeight);
+    ctx.rect(372, 502, 63, impactCDHeight);
     ctx.fill();
   }
 
@@ -334,7 +342,11 @@ class Game {
   bossCastBar(ctx){
     if (this.boss.casting) {
       let barLength = ((this.boss.currentCastTime / this.boss.castTime) * 300);
-
+      if (this.currentCastTime >= this.boss.castTime) {
+        this.boss.casting = false;
+        this.boss.currentCastTime = 0;
+        this.game.castTime = 0;
+      }
       ctx.fillStyle = '#000000';
       ctx.beginPath();
       ctx.rect(605, 476, 300, 26);

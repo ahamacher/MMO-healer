@@ -149,12 +149,15 @@ class NPC {
   executeBuff(buff){
     switch (buff.type){
       case "heal":
-        this.game.healed += buff.heal;
-        if (this.currentHp !== this.maxHp){
+        if (this.currentHp < this.maxHp){
           this.currentHp += buff.heal;
         } else {
           this.game.overheal += buff.heal;
         }
+        if (this.currentHp > this.maxHp) {
+          this.currentHp = this.maxHp;
+        }
+        this.game.healed += buff.heal;
         break;
     }
   }

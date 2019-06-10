@@ -32,7 +32,13 @@ class BossSpells {
 
   lifeShaver() {
     const { party } = this.game;
-    const random = Math.floor(Math.random() * 2);
+    let tankCount = 0;
+    party.forEach(member => {
+      if (member.maxHp === 200){
+        tankCount += 1;
+      }
+    });
+    const random = Math.floor(Math.random() * tankCount);
     const selectedTank = party[random];
     const heavyDmg = selectedTank.maxHp * 0.6;
 
@@ -46,7 +52,7 @@ class BossSpells {
       }
       if (selectedTank.currentHp < 0) {
         this.game.deathCount += 1;
-        member.currentHp = 0;
+        selectedTank.currentHp = 0;
       }
       this.boss.casting = false;
     }, BossSpells.LIFESHAVER);
