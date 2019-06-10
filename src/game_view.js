@@ -153,11 +153,18 @@ class GameView {
 
 
     const spellIcons = { cureIcon, regenIcon, aoeHeal, aoeRegen, esuna, revive };
-
-    const options = {
+    
+    const bossScript = [
+      {spell: "flare", hp: 95}, 
+      {spell: "lifeShaver", hp: 85},
+      {spell: "lifeShaver", hp: 65},
+      {spell: "lifeShaver", hp: 45},
+      {spell: "ahkmorn", hp: 20},
+    ];
+      const options = {
       comp: { tank: 1, healer: 1, dps: 3 },
       ctx, canvas: canvasEl, bossSrc: boss,
-      dead, bg, spellIcons
+      dead, bg, spellIcons, bossScript
     };
 
 

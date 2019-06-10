@@ -9,6 +9,7 @@ class Game {
   constructor(options){
     // teamcomp array goes {tanks: X, healer: Y, dps: Z}
     this.comp = options.comp;
+    this.bossScript = options.bossScript;
     this.party = [];
     this.dead = options.dead;
     this.activeGCD = false;
@@ -30,8 +31,9 @@ class Game {
     this.impactMaxCD = 20000;
 
     // boss spell counters for hp % timers
-    this.busterCount = 0;
-    this.flareCount = 0;
+    this.nextBossSpell = null;
+    // this.busterCount = 0;
+    // this.flareCount = 0;
 
     // probably not needed
     this.ctx = options.ctx;
@@ -379,26 +381,13 @@ class Game {
 
   checkBossHp() {
     const currentHpPc = Math.floor(this.boss.currentHp / this.boss.maxHp * 100);
-    console.log(currentHpPc);
-    if (currentHpPc < 95 && this.flareCount === 0){
-      this.flareCount += 1;
-      this.castBossSpell('flare');
+    if (this.nextBossSpell === null) {
+      this.nextBossSpell = this.bossScript.shift();
     }
-    if (currentHpPc < 85 && this.busterCount === 0) {
-      this.busterCount += 1;
-      this.castBossSpell('lifeShaver');
-    }
-    if (currentHpPc < 65 && this.busterCount === 1) {
-      this.busterCount += 1;
-      this.castBossSpell('lifeShaver');
-    }
-    if (currentHpPc < 45 && this.busterCount === 2) {
-      this.busterCount += 1;
-      this.castBossSpell('lifeShaver');
-    }
-    if (currentHpPc < 20 && !this.boss.ahkCast) {
-      this.castBossSpell('ahkmorn');
-      this.boss.ahkCast = true;
+    
+    if (this.nextBossSpell && currentHpPc <= this.nextBossSpell.hp) {
+      this.castBossSpell(this.nextBossSpell.spell);
+      this.nextBossSpell = null;
     }
   }
 
