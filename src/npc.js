@@ -17,6 +17,7 @@ class NPC {
     this.game = options.game;
     this.ctx = options.ctx;
     this.canvas = options.canvas;
+    this.statusIcon = options.statusIcon;
 
     this.toggleClickable();
     this.speed = options.speed;
@@ -120,10 +121,55 @@ class NPC {
       ctx.shadowBlur = 0;
       ctx.shadowColor = 'rgba(0,0,0,0)';
     }
+    this.drawStatus(ctx);
     this.drawMaxHP(ctx);
     this.drawCurrentHp(ctx);
     // 120 is hardcoded currently to the refresh rate
     this.statusAction(this.speed);
+  }
+
+  drawStatus(ctx){
+    if (this.buffs.length > 0){
+      this.buffs.forEach(buff => {
+        switch (buff.type) {
+          case "heal":
+            //regen icon
+            ctx.drawImage(
+              this.statusIcon,
+              0,
+              0,
+              20, 20,
+              this.pos[0] + 5, this.pos[1] + 5,
+              20, 20
+            );
+            break;
+          case "posion":
+            // posion icon
+            ctx.drawImage(
+              this.statusIcon,
+              20,
+              0,
+              20, 20,
+              this.pos[0] + 28, this.pos[1] + 5,
+              20, 20
+            );
+            break;
+          case "x":
+            // x icon
+            ctx.drawImage(
+              this.statusIcon,
+              0,
+              20,
+              20, 20,
+              this.pos[0] + 51, this.pos[1] + 5,
+              20, 20
+            );
+            break;
+          default:
+            break;
+        }
+      });
+    }
   }
 
   statusAction(speed){

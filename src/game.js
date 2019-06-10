@@ -22,6 +22,7 @@ class Game {
     this.mp = 1000;
     this.bg = options.bg;
     this.spellIcons = options.spellIcons;
+    this.statusIcon = options.statusIcon;
     this.overheal = 0;
     this.healed = 0;
     this.deathCount = 0;
@@ -32,8 +33,6 @@ class Game {
 
     // boss spell counters for hp % timers
     this.nextBossSpell = null;
-    // this.busterCount = 0;
-    // this.flareCount = 0;
 
     // probably not needed
     this.ctx = options.ctx;
@@ -86,19 +85,19 @@ class Game {
     let k = 0;
 
     while (i < this.comp.tank){
-      this.party.push(new Tank({pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED}));
+      this.party.push(new Tank({pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED, statusIcon: this.statusIcon}));
       // this.addNpcListener(pos);
       pos = pos + 1;
       i = i + 1;
     }
     while (j < this.comp.healer){
-      this.party.push(new Healer({ pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED}));
+      this.party.push(new Healer({ pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED, statusIcon: this.statusIcon}));
       // this.addNpcListener(pos);
       pos = pos + 1;
       j = j + 1;
     }
     while (k < this.comp.dps){
-      this.party.push(new Dps({ pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED}));
+      this.party.push(new Dps({ pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED, statusIcon: this.statusIcon}));
       // this.addNpcListener(pos);
       pos = pos + 1;
       k = k + 1;

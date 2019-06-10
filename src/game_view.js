@@ -150,7 +150,9 @@ class GameView {
     const cureIcon = document.getElementById('cure');
     const regenIcon = document.getElementById('regen');
     const aoeHeal = document.getElementById('aoeheal');
-
+    
+    const statusIcon = new Image(1,1);
+    statusIcon.src = "./spellicons/status.png";
 
     const spellIcons = { cureIcon, regenIcon, aoeHeal, aoeRegen, esuna, revive };
     
@@ -158,13 +160,16 @@ class GameView {
       {spell: "flare", hp: 95}, 
       {spell: "lifeShaver", hp: 85},
       {spell: "lifeShaver", hp: 65},
+      { spell: "flare", hp: 50 },
       {spell: "lifeShaver", hp: 45},
       {spell: "ahkmorn", hp: 20},
     ];
+
+
       const options = {
       comp: { tank: 1, healer: 1, dps: 3 },
       ctx, canvas: canvasEl, bossSrc: boss,
-      dead, bg, spellIcons, bossScript
+      dead, bg, spellIcons, bossScript, statusIcon
     };
 
 
