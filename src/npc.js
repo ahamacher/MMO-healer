@@ -86,15 +86,13 @@ class NPC {
       ctx.save();
 
       ctx.restore();
-      ctx.shadowBlur = 0;
-      ctx.shadowColor = 'rgba(0,0,0,0)';
 
       ctx.drawImage(
         this.game.dead,
-        this.pos[0] + 2,
+        this.pos[0] + 17,
         this.pos[1] + 2,
-        71,
-        50
+        42,
+        43.5
       );
     } else {
       ctx.lineWidth = 2;
@@ -111,15 +109,12 @@ class NPC {
 
     }
       if (this.selected){
-        // ctx.shadowBlur = 10;
-        // ctx.shadowColor = "white";
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'yellow';
         ctx.strokeRect(this.pos[0], this.pos[1], 76, 66);
 
       ctx.restore();
-      ctx.shadowBlur = 0;
-      ctx.shadowColor = 'rgba(0,0,0,0)';
+
     }
     this.drawStatus(ctx);
     this.drawMaxHP(ctx);

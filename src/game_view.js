@@ -59,6 +59,30 @@ class GameView {
             new Spells({ game: this }).aoeHeal();
           }
           break;
+        case 52:
+          if (!this.activeGCD) {
+            new Spells({ game: this }).aoeRegen();
+          }
+          break;
+        case 53:
+          // if (!this.activeGCD) {
+          //   new Spells({game: this}).esuna();
+          // }
+          selected = this.findSelected();
+          if (this.impactCD === 0) {
+            new Spells({ game: this }).impactHeal(selected);
+          }
+          break;
+        case 54:
+          // selected = this.findSelected();
+          // if (this.impactCD === 0) {
+          //   new Spells({ game: this }).impactHeal(selected);
+          // }
+          selected = this.findSelected();
+          if (selected.currentHp === 0) {
+            new Spells({ game: this }).revive(selected);
+          }
+          break;
         case 48:
           this.boss.currentHp = 1;
           break;
@@ -77,7 +101,10 @@ class GameView {
     this.ctx.fillStyle = '#000000';
     this.ctx.fillRect(0, 0, Game.DIM_X, Game.DIM_Y);
 
-    const overhealVal = Math.floor((this.game.overheal/this.game.healed) * 100);
+    let overhealVal = Math.floor((this.game.overheal/this.game.healed) * 100);
+    if (isNaN(overhealVal)){
+      overhealVal = 0;
+    }
     const overhealText = "Overheal percentage %" + overhealVal;
     const deathCountText = "Death count: " + this.game.deathCount;
 
@@ -111,13 +138,26 @@ class GameView {
       const rect = this.canvas.getBoundingClientRect();
       if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
 
-        this.level1();
+        this.tutorial();
       }
     });
     // end event listener
   }
 
+  tutorial() {
+    const backing = new Path2D();
+    backing.rect(400, 278, 200, 26);
+    this.ctx.fillStyle = "rgba(255,0,0,0.5)";
+    this.ctx.fill(backing);
 
+    this.canvas.addEventListener('click', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
+
+        this.level1();
+      }
+    });
+  }
 
 
   level1(){
@@ -129,40 +169,45 @@ class GameView {
     }});
     document.getElementById('bossfight').pause();
     document.getElementById('bossfight').currentTime = 0;
-
     document.getElementById('bossfight').play();
 
     let aoeRegen = new Image(1,1);
-    aoeRegen.src = "./spellicons/assize.png";
-
+      aoeRegen.src = "./spellicons/assize.png";
     let esuna = new Image(1,1);
-    esuna.src = "./spellicons/esuna.png";
-
+      esuna.src = "./spellicons/esuna.png";
     let revive = new Image(1,1);
-    revive.src = "./spellicons/verraise.png";
+      revive.src = "./spellicons/verraise.png";
+    let cureIcon = new Image(1,1);
+      cureIcon.src = "./spellicons/cure_ii.png";
+    let regenIcon = new Image(1,1);
+      regenIcon.src = "./spellicons/regen.png";
+    let aoeHeal = new Image(1,1);
+      aoeHeal.src = "./spellicons/helios.png";
+    const boss = new Image(1,1);
+      boss.src = "./assets/Bahamutff6.png";
+    const dead = new Image(1,1);
+      dead.src = "./assets/skull.png";
+    const bg = new Image(1,1);
+      bg.src = "./assets/dungeonbg1.jpg";
+    const statusIcon = new Image(1,1);
+      statusIcon.src = "./spellicons/status.png";
 
     const canvasEl = document.getElementById('game-canvas');
     const ctx = canvasEl.getContext("2d");
-    const boss = document.getElementById('bahamut');
-    const dead = document.getElementById('skull');
-    const bg = document.getElementById('dungeon1');
-
-    const cureIcon = document.getElementById('cure');
-    const regenIcon = document.getElementById('regen');
-    const aoeHeal = document.getElementById('aoeheal');
-    
-    const statusIcon = new Image(1,1);
-    statusIcon.src = "./spellicons/status.png";
+  
 
     const spellIcons = { cureIcon, regenIcon, aoeHeal, aoeRegen, esuna, revive };
     
     const bossScript = [
+      {spell: "flare", hp: 99},
       {spell: "flare", hp: 95}, 
       {spell: "lifeShaver", hp: 85},
+      {spell: "flare", hp: 75},
       {spell: "lifeShaver", hp: 65},
-      { spell: "flare", hp: 50 },
+      {spell: "flare", hp: 50},
       {spell: "lifeShaver", hp: 45},
       {spell: "ahkmorn", hp: 20},
+      {spell: "ahkmorn", hp: 1}
     ];
 
 
@@ -178,9 +223,9 @@ class GameView {
     this.gameplay = setInterval(() => {
       if (this.game.gameOver) {
         this.gameOverScreen();
+        clearInterval(this.gameplay);
       } else {
         this.game.draw(this.ctx);
-        
       }
       this.pauseToggle();
     }, Game.SPEED);
@@ -192,16 +237,22 @@ class GameView {
     this.ctx.fillStyle = "rgba(0,0,0,0.01)";
     this.ctx.fill(backing);
 
+    const soundOn = new Image(1,1);
+    soundOn.src = "./assets/Speaker_Icon.png";
+
+    const soundOff = new Image(1,1);
+    soundOff.src = "./assets/mute_icon.png";
+
     let soundIcon;
     if (this.music) {
-      soundIcon = document.getElementById('sound-on');
+      soundIcon = soundOn;
     } else {
-      soundIcon = document.getElementById('sound-off');
+      soundIcon = soundOff;
     }
 
     this.renderSound(soundIcon);
 
-    this.canvas.addEventListener('mouseup', (e) => {
+    this.canvas.addEventListener('click', (e) => {
       const rect = this.canvas.getBoundingClientRect();
       if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
         if (this.music) {
