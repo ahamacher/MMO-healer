@@ -6,6 +6,7 @@ class GameView {
 
     this.canvas = document.getElementById('game-canvas');
     this.music = true;
+    this.state = "start";
   }
 
   start(){
@@ -29,144 +30,48 @@ class GameView {
     this.ctx.fill(backing);
 
     this.canvas.addEventListener('click', (e) => {
-      const rect = this.canvas.getBoundingClientRect();
-      if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
-        
-        this.level1();
+      if (this.state === "start"){
+        const rect = this.canvas.getBoundingClientRect();
+        if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
+
+          this.tutorial();
+        }
       }
     });
-
-  }
-
-  gameOverScreen() {
-    // removing event listener for spell. refactor later.
-    document.removeEventListener('keydown', (e) => {
-      switch (e.which) {
-        case 49:
-          selected = this.findSelected();
-          if (!this.activeGCD) {
-            new Spells({ game: this }).cure(selected);
-          }
-          break;
-        case 50:
-          selected = this.findSelected();
-          if (!this.activeGCD) {
-            new Spells({ game: this }).regen(selected);
-          }
-          break;
-        case 51:
-          if (!this.activeGCD) {
-            new Spells({ game: this }).aoeHeal();
-          }
-          break;
-        case 52:
-          if (!this.activeGCD) {
-            new Spells({ game: this }).aoeRegen();
-          }
-          break;
-        case 53:
-          // if (!this.activeGCD) {
-          //   new Spells({game: this}).esuna();
-          // }
-          selected = this.findSelected();
-          if (this.impactCD === 0) {
-            new Spells({ game: this }).impactHeal(selected);
-          }
-          break;
-        case 54:
-          // selected = this.findSelected();
-          // if (this.impactCD === 0) {
-          //   new Spells({ game: this }).impactHeal(selected);
-          // }
-          selected = this.findSelected();
-          if (selected.currentHp === 0) {
-            new Spells({ game: this }).revive(selected);
-          }
-          break;
-        case 48:
-          this.boss.currentHp = 1;
-          break;
-      }
-    });
-
-    this.game.party.forEach(member => {
-      member.toggleClickable();
-    });
-
-    // remove the interval
-    clearInterval(this.gameplay);
-    // gameover screen
-
-    this.ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
-    this.ctx.fillStyle = '#000000';
-    this.ctx.fillRect(0, 0, Game.DIM_X, Game.DIM_Y);
-
-    let overhealVal = Math.floor((this.game.overheal/this.game.healed) * 100);
-    if (isNaN(overhealVal)){
-      overhealVal = 0;
-    }
-    const overhealText = "Overheal percentage %" + overhealVal;
-    const deathCountText = "Death count: " + this.game.deathCount;
-
-    const eb = new Path2D();
-    eb.rect(360,304,280,2);
-    this.ctx.fillStyle = "rgba(255,255,255,1)";
-    this.ctx.fill(eb);
-    
-    this.ctx.fillStyle = 'FFFFFF';
-    this.ctx.font = "24px Arial";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText(overhealText, Game.DIM_X / 2, Game.DIM_Y / 2 );
-
-    this.ctx.fillStyle = 'FFFFFF';
-    this.ctx.font = "24px Arial";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText(deathCountText, Game.DIM_X / 2, (Game.DIM_Y / 2) + 30);
-
-    this.ctx.fillStyle = 'FF0000';
-    this.ctx.font = "24px Arial";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText("Play again?", 500, 360);
-
-    // event listener to restart the game
-    const backing = new Path2D();
-    backing.rect(430, 340, 150, 26);
-    this.ctx.fillStyle = "rgba(0,0,0,0.05)";
-    this.ctx.fill(backing);
-
-    this.canvas.addEventListener('click', (e) => {
-      const rect = this.canvas.getBoundingClientRect();
-      if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
-
-        this.tutorial();
-      }
-    });
-    // end event listener
   }
 
   tutorial() {
-    const backing = new Path2D();
-    backing.rect(400, 278, 200, 26);
-    this.ctx.fillStyle = "rgba(255,0,0,0.5)";
-    this.ctx.fill(backing);
+    this.state = "tutorial";
+    const splash = new Image(1,1);
+    splash.src = './assets/tutorial.jpg';
 
+    this.ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
+    this.ctx.fillStyle = '#050505';
+    this.ctx.fillRect(0, 0, Game.DIM_X, Game.DIM_Y);
+
+    splash.onload = () => {
+      this.ctx.drawImage(splash, 0, 0, Game.DIM_X, Game.DIM_Y);
+    };
+      
+      const backing = new Path2D();
+      backing.rect(630, 320, 246, 56);
+      this.ctx.fillStyle = "rgba(255,0,0,0.5)";
+      this.ctx.fill(backing);
+
+      
     this.canvas.addEventListener('click', (e) => {
-      const rect = this.canvas.getBoundingClientRect();
-      if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
+      if (this.state === "tutorial"){
+        const rect = this.canvas.getBoundingClientRect();
+        if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
 
-        this.level1();
+          this.level1();
+        }
       }
     });
   }
 
-
   level1(){
-    document.removeEventListener('click', (e) => {
-      const rect = this.canvas.getBoundingClientRect();
-      if(this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
-
-      this.level1();
-    }});
+    this.state = "level1";
     document.getElementById('bossfight').pause();
     document.getElementById('bossfight').currentTime = 0;
     document.getElementById('bossfight').play();
@@ -223,6 +128,11 @@ class GameView {
     this.gameplay = setInterval(() => {
       if (this.game.gameOver) {
         this.gameOverScreen();
+        this.state = "gameover";
+        clearInterval(this.gameplay);
+      } else if (this.game.gameOverBad) {
+        this.gameOverBad();
+        this.state = "gameover";
         clearInterval(this.gameplay);
       } else {
         this.game.draw(this.ctx);
@@ -269,6 +179,100 @@ class GameView {
     this.ctx.drawImage(
       soundIcon, 925, 25, 25, 25
     );
+  }
+
+  gameOverBad() {
+    this.game.party.forEach(member => {
+      member.toggleClickable();
+    });
+
+
+    // event listener to restart the game
+    this.ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
+    this.ctx.fillStyle = '#000000';
+    this.ctx.fillRect(0, 0, Game.DIM_X, Game.DIM_Y);
+
+    const eb = new Path2D();
+    eb.rect(435, 304, 130, 2);
+    this.ctx.fillStyle = "rgba(255,255,255,1)";
+    this.ctx.fill(eb);
+
+    this.ctx.fillStyle = 'FFFFFF';
+    this.ctx.font = "24px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("You Died...", Game.DIM_X / 2, Game.DIM_Y / 2);
+    this.ctx.fillText("Play again?", 500, 360);
+
+
+    const backing = new Path2D();
+    backing.rect(430, 340, 150, 26);
+    this.ctx.fillStyle = "rgba(255,0,0,0.5)";
+    this.ctx.fill(backing);
+
+
+    this.canvas.addEventListener('click', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
+
+        this.level1();
+      }
+    });
+    // end event listener
+  }
+
+  gameOverScreen() {
+
+    this.game.party.forEach(member => {
+      member.toggleClickable();
+    });
+
+    // gameover screen
+
+    this.ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
+    this.ctx.fillStyle = '#000000';
+    this.ctx.fillRect(0, 0, Game.DIM_X, Game.DIM_Y);
+
+    let overhealVal = Math.floor((this.game.overheal / this.game.healed) * 100);
+    if (isNaN(overhealVal)) {
+      overhealVal = 0;
+    }
+    const overhealText = "Overheal percentage %" + overhealVal;
+    const deathCountText = "Death count: " + this.game.deathCount;
+
+    const eb = new Path2D();
+    eb.rect(360, 304, 280, 2);
+    this.ctx.fillStyle = "rgba(255,255,255,1)";
+    this.ctx.fill(eb);
+
+    this.ctx.fillStyle = 'FFFFFF';
+    this.ctx.font = "24px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(overhealText, Game.DIM_X / 2, Game.DIM_Y / 2);
+
+    this.ctx.fillStyle = 'FFFFFF';
+    this.ctx.font = "24px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(deathCountText, Game.DIM_X / 2, (Game.DIM_Y / 2) + 30);
+
+    this.ctx.fillStyle = 'FF0000';
+    this.ctx.font = "24px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Play again?", 500, 360);
+
+    // event listener to restart the game
+    const backing = new Path2D();
+    backing.rect(430, 340, 150, 26);
+    this.ctx.fillStyle = "rgba(0,0,0,0.05)";
+    this.ctx.fill(backing);
+
+    this.canvas.addEventListener('click', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
+
+        this.level1();
+      }
+    });
+    // end event listener
   }
 }
 

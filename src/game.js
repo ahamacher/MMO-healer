@@ -27,6 +27,7 @@ class Game {
     this.healed = 0;
     this.deathCount = 0;
     this.gameOver = false;
+    this.gameOverBad = false;
 
     this.impactCD = 0;
     this.impactMaxCD = 20000;
@@ -71,7 +72,7 @@ class Game {
       }
     });
     if (player.currentHp === 0){
-      this.gameOver = true;
+      this.gameOverBad = true;
     }
   }
 
