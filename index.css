@@ -1,0 +1,38 @@
+body {
+  display: flex;
+  justify-content: center;
+  background-color: black;
+}
+
+#canvas {
+  width: fit-content;
+  height: fit-content;
+  position: relative;
+}
+
+#speaker {
+  width: 25px;
+  height: auto;
+  position: absolute;
+  right: 45px;
+  top: 25px;
+  z-index: 100;
+}
+
+.svg {
+  width: 25px;
+}
+
+.svg path{
+  fill: white;
+}
+
+.svg:hover path {
+  fill: grey;
+}
+
+.links {
+  position: absolute;
+  bottom: -35px;
+  right: 0px;
+}
