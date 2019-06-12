@@ -18,3 +18,21 @@ body {
   top: 25px;
   z-index: 100;
 }
+
+.svg {
+  width: 25px;
+}
+
+.svg path{
+  fill: white;
+}
+
+.svg:hover path {
+  fill: grey;
+}
+
+.links {
+  position: absolute;
+  bottom: -35px;
+  right: 0px;
+}
