@@ -84,7 +84,7 @@ class BossSpells {
     const { party } = this.game;
     const randomIdx = Math.floor(Math.random()* party.length);
     const randomMember = party[randomIdx];
-    const posion = { type: 'posion', dmg: 5, duration: 15000 };
+    const posion = { type: 'posion', dmg: 5, duration: 15000, activation: 0};
     this.boss.currentSpell = "Bio";
     this.boss.casting = true;
     this.boss.castTime = BossSpells.BIO;
@@ -92,7 +92,7 @@ class BossSpells {
     setTimeout(() => {
       if (randomMember.currentHp > 0 && this.boss.currentHp > 0){
         randomMember.currentHp -= 5;
-        randomMember.debuffs.push(posion);
+        randomMember.buffs.push(posion);
       }
       this.boss.casting = false;
     }, BossSpells.BIO);

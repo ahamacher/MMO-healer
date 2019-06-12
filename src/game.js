@@ -28,6 +28,7 @@ class Game {
     this.deathCount = 0;
     this.gameOver = false;
     this.gameOverBad = false;
+    this.currentLevel = options.level;
 
     this.impactCD = 0;
     this.impactMaxCD = 20000;
@@ -106,7 +107,18 @@ class Game {
   }
 
   addBoss(ctx, canvas, bossSrc) {
-    this.boss = new Boss({ pos: [633,104], ctx, canvas, game: this, bossSrc });
+    let maxHp;
+    switch (this.currentLevel) {
+      case "level1":
+        maxHp = 2000;
+        break;
+      case "level2":
+        maxHp = 6000;
+        break;
+      default:
+        break;
+    }
+    this.boss = new Boss({ pos: [633,104], ctx, canvas, game: this, bossSrc, maxHp });
   }
 
   playerCastBar(ctx) {
@@ -433,7 +445,7 @@ class Game {
 
 Game.DIM_X = 1000;
 Game.DIM_Y = 600;
-Game.SPEED = 33;
+Game.SPEED = 66;
 
 Game.NPC_POS = [
   [57,90], [148, 90], [239,90], [330,90], [421,90],

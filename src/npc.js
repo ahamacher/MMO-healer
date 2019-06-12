@@ -200,6 +200,15 @@ class NPC {
         }
         this.game.healed += buff.heal;
         break;
+      case "posion":
+        if (this.currentHp <= this.maxHp && this.currentHp > 0) {
+          this.currentHp -= buff.dmg;
+        } 
+        if (this.currentHp <= 0) {
+          this.currentHp = 0;
+          this.game.deathCount += 1;
+        }
+        break;
     }
   }
 

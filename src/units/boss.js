@@ -2,8 +2,6 @@ const NPC = require("../npc.js");
 
 class Boss extends NPC {
   constructor(options){
-
-    options.maxHp = 2000;
     options.attackRate = 1800;
     options.attackValue = 15;
     options.color = '#003399';

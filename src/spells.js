@@ -74,7 +74,7 @@ class Spells {
   }
 
   aoeRegen() {
-    const regen = { type: 'heal', heal: 5, duration: 15000, activation: 0 };
+    const regen = { type: 'heal', heal: 5, duration: 20000, activation: 0 };
     if (this.game.mp > 75) {
       setTimeout(() => {
         this.game.party.forEach(member => {
@@ -113,13 +113,13 @@ class Spells {
   }
 
   impactHeal(target) {
-    if (this.game.mp > 50 && target.currentHp > 0) {
+    if (this.game.mp > 5 && target.currentHp > 0) {
       target.currentHp += Math.floor(target.maxHp * 0.35);
       if (target.currentHp > target.maxHp) {
         this.game.overheal += (target.currentHp - target.maxHp);
         target.currentHp = target.maxHp;
       }
-      this.game.mp = this.game.mp - 50;
+      this.game.mp = this.game.mp - 5;
       this.game.impactCD = 20000;
     }
   }

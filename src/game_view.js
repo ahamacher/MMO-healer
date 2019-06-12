@@ -7,6 +7,42 @@ class GameView {
     this.canvas = document.getElementById('game-canvas');
     this.music = true;
     this.state = "start";
+
+    this.fps = 15;
+    this.fpsInterval = 1000/ this.fps;
+    this.startTime = Date.now();
+    this.then = Date.now();
+  }
+
+  animate(fps){
+    this.fpsInterval = 1000/fps;
+    this.then = Date.now();
+    this.startTime = this.then;
+    this.rootRender();
+  }
+
+  rootRender(){
+    // setTimeout(requestAnimationFrame(this.rootRender.bind(this)), 1000);
+    requestAnimationFrame(this.rootRender.bind(this));
+    this.now = Date.now();
+    let elapsed = this.now - this.then;
+
+    if (elapsed > this.fpsInterval){
+      this.then = this.now - (elapsed % this.fpsInterval);
+
+      if (this.game.gameOver && this.state === "level1") {
+        this.level1End();
+      } else if (this.game.gameOver) {
+        this.gameOverScreen();
+        this.state = "gameover";
+      } else if (this.game.gameOverBad) {
+        this.gameOverBad();
+        this.state = "gameover";
+      } else {
+        this.game.draw(this.ctx);
+      }
+
+    }
   }
 
   start(){
@@ -55,10 +91,9 @@ class GameView {
       
       const backing = new Path2D();
       backing.rect(630, 320, 246, 56);
-      this.ctx.fillStyle = "rgba(255,0,0,0.5)";
+      this.ctx.fillStyle = "rgba(000,0,0,0.01)";
       this.ctx.fill(backing);
-
-      
+    this.game = null;
     this.canvas.addEventListener('click', (e) => {
       if (this.state === "tutorial"){
         const rect = this.canvas.getBoundingClientRect();
@@ -72,6 +107,8 @@ class GameView {
 
   level1(){
     this.state = "level1";
+    this.game = null;
+
     document.getElementById('bossfight').pause();
     document.getElementById('bossfight').currentTime = 0;
     document.getElementById('bossfight').play();
@@ -119,28 +156,112 @@ class GameView {
       const options = {
       comp: { tank: 1, healer: 1, dps: 3 },
       ctx, canvas: canvasEl, bossSrc: boss,
-      dead, bg, spellIcons, bossScript, statusIcon
+      dead, bg, spellIcons, level: this.state, bossScript, statusIcon
     };
 
 
     this.game = new Game(options);
-    
-    this.gameplay = setInterval(() => {
-      if (this.game.gameOver) {
-        this.gameOverScreen();
-        this.state = "gameover";
-        clearInterval(this.gameplay);
-      } else if (this.game.gameOverBad) {
-        this.gameOverBad();
-        this.state = "gameover";
-        clearInterval(this.gameplay);
-      } else {
-        this.game.draw(this.ctx);
-      }
-      this.pauseToggle();
-    }, Game.SPEED);
+    // requestAnimationFrame(this.rootRender.bind(this));
+    this.rootRender();
+    // this.gameplay = setInterval(() => {
+    //   if (this.game.gameOver && this.state === "level1") {
+    //     this.level1End();
+    //     this.state = "level2";
+    //     clearInterval(this.gameplay);
+    //     this.game = null;
+    //   } else if (this.game.gameOver) {
+    //     this.gameOverScreen();
+    //     this.state = "gameover";
+    //     clearInterval(this.gameplay);
+    //     this.game = null;
+    //   } else if (this.game.gameOverBad) {
+    //     this.gameOverBad();
+    //     this.state = "gameover";
+    //     clearInterval(this.gameplay);
+    //     this.game = null;
+    //   } else {
+    //     this.game.draw(this.ctx);
+    //   }
+    //   this.pauseToggle();
+    // }, Game.SPEED);
   }
 
+  level2(){
+    this.state = "level2";
+    this.game = null;
+    document.getElementById('bossfight').pause();
+    document.getElementById('bossfight').currentTime = 0;
+    document.getElementById('bossfight').play();
+
+    let aoeRegen = new Image(1, 1);
+    aoeRegen.src = "./spellicons/assize.png";
+    let esuna = new Image(1, 1);
+    esuna.src = "./spellicons/esuna.png";
+    let revive = new Image(1, 1);
+    revive.src = "./spellicons/verraise.png";
+    let cureIcon = new Image(1, 1);
+    cureIcon.src = "./spellicons/cure_ii.png";
+    let regenIcon = new Image(1, 1);
+    regenIcon.src = "./spellicons/regen.png";
+    let aoeHeal = new Image(1, 1);
+    aoeHeal.src = "./spellicons/helios.png";
+    const boss = new Image(1, 1);
+    boss.src = "./assets/virtue.png";
+    const dead = new Image(1, 1);
+    dead.src = "./assets/skull.png";
+    const bg = new Image(1, 1);
+    bg.src = "./assets/dungeonbg1.jpg";
+    const statusIcon = new Image(1, 1);
+    statusIcon.src = "./spellicons/status.png";
+
+    const canvasEl = document.getElementById('game-canvas');
+    const ctx = canvasEl.getContext("2d");
+
+
+    const spellIcons = { cureIcon, regenIcon, aoeHeal, aoeRegen, esuna, revive };
+
+    const bossScript = [
+      { spell: "bio", hp: 99 },
+      { spell: "flare", hp: 95 },
+      { spell: "lifeShaver", hp: 85 },
+      { spell: "flare", hp: 75 },
+      { spell: "lifeShaver", hp: 65 },
+      { spell: "flare", hp: 50 },
+      { spell: "lifeShaver", hp: 45 },
+      { spell: "ahkmorn", hp: 20 },
+      { spell: "ahkmorn", hp: 1 }
+    ];
+
+
+    const options = {
+      comp: { tank: 2, healer: 1, dps: 7 },
+      ctx, canvas: canvasEl, bossSrc: boss,
+      dead, bg, spellIcons, level: this.state, bossScript, statusIcon
+    };
+
+
+    this.game = new Game(options);
+
+    // this.gameplay = setInterval(() => {
+    //   if (this.game.gameOver && this.state === "level1") {
+    //     this.level1End();
+    //     this.state = "level2";
+    //     clearInterval(this.gameplay);
+    //   } else if (this.game.gameOver) {
+    //     this.gameOverScreen();
+    //     this.state = "gameover";
+    //     clearInterval(this.gameplay);
+    //   } else if (this.game.gameOverBad) {
+    //     this.gameOverBad();
+    //     this.state = "gameover";
+    //     clearInterval(this.gameplay);
+    //   } else {
+    //     this.game.draw(this.ctx);
+    //   }
+    //   this.pauseToggle();
+    // }, Game.SPEED);
+    this.rootRender();
+  }
   pauseToggle() {
     const backing = new Path2D();
     backing.rect(925, 25, 25, 25);
@@ -182,11 +303,6 @@ class GameView {
   }
 
   gameOverBad() {
-    this.game.party.forEach(member => {
-      member.toggleClickable();
-    });
-
-
     // event listener to restart the game
     this.ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
     this.ctx.fillStyle = '#000000';
@@ -206,7 +322,7 @@ class GameView {
 
     const backing = new Path2D();
     backing.rect(430, 340, 150, 26);
-    this.ctx.fillStyle = "rgba(255,0,0,0.5)";
+    this.ctx.fillStyle = "rgba(0,0,0,0.01)";
     this.ctx.fill(backing);
 
 
@@ -220,12 +336,57 @@ class GameView {
     // end event listener
   }
 
-  gameOverScreen() {
+  level1End() {
+    // gameover screen
 
-    this.game.party.forEach(member => {
-      member.toggleClickable();
+    this.ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
+    this.ctx.fillStyle = '#000000';
+    this.ctx.fillRect(0, 0, Game.DIM_X, Game.DIM_Y);
+
+    let overhealVal = Math.floor((this.game.overheal / this.game.healed) * 100);
+    if (isNaN(overhealVal)) {
+      overhealVal = 0;
+    }
+    const overhealText = "Overheal percentage %" + overhealVal;
+    const deathCountText = "Death count: " + this.game.deathCount;
+
+    const eb = new Path2D();
+    eb.rect(360, 304, 280, 2);
+    this.ctx.fillStyle = "rgba(255,255,255,1)";
+    this.ctx.fill(eb);
+
+    this.ctx.fillStyle = 'FFFFFF';
+    this.ctx.font = "24px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(overhealText, Game.DIM_X / 2, Game.DIM_Y / 2);
+
+    this.ctx.fillStyle = 'FFFFFF';
+    this.ctx.font = "24px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(deathCountText, Game.DIM_X / 2, (Game.DIM_Y / 2) + 30);
+
+    this.ctx.fillStyle = 'FF0000';
+    this.ctx.font = "24px Arial";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText("Next level", 500, 360);
+
+    // event listener to restart the game
+    const backing = new Path2D();
+    backing.rect(430, 340, 150, 26);
+    this.ctx.fillStyle = "rgba(0,0,0,0.05)";
+    this.ctx.fill(backing);
+
+    this.canvas.addEventListener('click', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      if (this.ctx.isPointInPath(backing, (e.clientX - rect.x), (e.clientY - rect.y))) {
+
+        this.level2();
+      }
     });
+    // end event listener
+  }
 
+  gameOverScreen() {
     // gameover screen
 
     this.ctx.clearRect(0, 0, Game.DIM_X, Game.DIM_Y);
