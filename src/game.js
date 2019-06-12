@@ -199,19 +199,16 @@ class Game {
           }
           break;
         case 53:
+          // commenting this spell out to add later if desired
           // if (!this.activeGCD) {
           //   new Spells({game: this}).esuna();
           // }
           selected = this.findSelected();
-          if (this.impactCD === 0) {
+          if (this.impactCD === 0 && selected) {
             new Spells({ game: this }).impactHeal(selected);
           }
           break;
         case 54:
-          // selected = this.findSelected();
-          // if (this.impactCD === 0) {
-          //   new Spells({ game: this }).impactHeal(selected);
-          // }
           selected = this.findSelected();
           if (selected.currentHp === 0) {
             new Spells({ game: this }).revive(selected);
@@ -267,9 +264,9 @@ class Game {
       ctx.fill();
 
       // spell 5
-      ctx.beginPath();
-      ctx.rect(372, 502, 63, gcdHeight);
-      ctx.fill();
+      // ctx.beginPath();
+      // ctx.rect(372, 502, 63, gcdHeight);
+      // ctx.fill();
 
       // spell 6
       ctx.beginPath();

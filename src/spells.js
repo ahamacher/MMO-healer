@@ -27,7 +27,7 @@ class Spells {
 
   regen(target) {
     const regen = { type: 'heal', heal: 5, duration: 15000, activation: 0 };
-    target.buffs.push(regen);
+    target.receiveBuff(regen);
     this.game.mp -= 15;
     this.game.activeGCD = true;
     // this.game.gcdWait();

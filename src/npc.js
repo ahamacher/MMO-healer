@@ -18,7 +18,7 @@ class NPC {
     this.ctx = options.ctx;
     this.canvas = options.canvas;
     this.statusIcon = options.statusIcon;
-
+    this.baseAttack = options.attackValue;
     this.toggleClickable();
     this.speed = options.speed;
   }
@@ -63,6 +63,9 @@ class NPC {
 
   isDead(){
     if (this.currentHp <= 0){
+      if (this.buffs.length > 0){
+        this.buffs = [];
+      }
       return true;
     }
     return false;
@@ -149,7 +152,7 @@ class NPC {
               20, 20
             );
             break;
-          case "x":
+          case "BreakWeapon":
             // x icon
             ctx.drawImage(
               this.statusIcon,
@@ -168,6 +171,7 @@ class NPC {
   }
 
   statusAction(speed){
+    let removal = [];
     if (this.buffs.length > 0) {
       this.buffs.forEach(buff => {
         if (!this.isDead()) {
@@ -183,7 +187,8 @@ class NPC {
         buff.duration = 0;
       }
       });
-      this.buffs = this.buffs.filter(buff => buff.duration > 0);
+      removal = this.buffs.filter(buff => buff.duration <= 0);
+      this.remove(removal);
     }
   }
 
@@ -208,6 +213,11 @@ class NPC {
           this.currentHp = 0;
           this.game.deathCount += 1;
         }
+        break;
+      case "BreakWeapon":
+        if (this.currentHp > 0) {
+          this.attackValue = 0;
+        } 
         break;
     }
   }
@@ -245,11 +255,23 @@ class NPC {
     // buffs should come in with a buff type
     // buffs should come in with a duration
     // buffs should come in with an activiation
-    this.buffs.push(buff);
+    const buffIdx = this.buffs.indexOf(buff);
+    const existing = this.buffs[buffIdx];
+
+    if (existing) {
+      existing.duration += buff.duration;
+    } else {
+      this.buffs.push(buff);
+    }
   }
 
-  remove(buff){
-    this.buffs.splice(this.buffs.indexOf(buff), 1);
+  remove(buffs){
+    buffs.forEach(buff => {
+      if (buff.type == "BreakWeapon"){
+        this.attackValue = this.baseAttack;
+      }
+      this.buffs.splice(this.buffs.indexOf(buff), 1);
+    });
   }
 
   buffTime(){

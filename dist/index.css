@@ -4,43 +4,17 @@ body {
   background-color: black;
 }
 
-#bahamut {
-  display: none;
-  position: absolute;
+#canvas {
+  width: fit-content;
+  height: fit-content;
+  position: relative;
 }
 
-#skull {
-  display: none;
+#speaker {
+  width: 25px;
+  height: auto;
   position: absolute;
+  right: 45px;
+  top: 25px;
+  z-index: 100;
 }
-
-#dungeon1 {
-  display: none;
-  position: absolute;
-}
-
-#cure {
-  display: none;
-  position: absolute;
-}
-
-#regen {
-  display: none;
-  position: absolute;
-}
-
-#aoeheal {
-  display: none;
-  position: absolute;
-}
-
-#sound-on {
-  display: none;
-  position: absolute;
-}
-
-#sound-off {
-  display: none;
-  position: absolute;
-}
-
