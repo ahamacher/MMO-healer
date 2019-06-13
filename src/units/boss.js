@@ -15,20 +15,6 @@ class Boss extends NPC {
     this.currentSpell = null;
   }
 
-    // // monster box
-    // ctx.fillStyle = '#33cc33';
-    // ctx.beginPath();
-    // ctx.rect(633, 104, 245, 350);
-    // ctx.fill();
-
-    // // monster cast bar
-    // ctx.beginPath();
-    // ctx.rect(605, 476, 300, 26);
-    // ctx.fill();
-// 1.317
-// 186 nat
-
-
   draw(ctx){
     if (this.isDead()){
       ctx.fillStyle = '#1d1d1d';
