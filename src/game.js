@@ -322,6 +322,17 @@ class Game {
     ctx.drawImage(
       this.spellIcons.revive, 455, 502, 63, 63
     );
+
+    //spell text
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = "bold 18px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("1", 71, 578);
+    ctx.fillText("2", 154, 578);
+    ctx.fillText("3", 237, 578);
+    ctx.fillText("4", 320, 578);
+    ctx.fillText("5", 403, 578);
+    ctx.fillText("6", 486, 578);
   }
 
   drawMonsterBox(ctx){
