@@ -21,6 +21,7 @@ class NPC {
     this.baseAttack = options.attackValue;
     this.toggleClickable();
     this.speed = options.speed;
+    this.npcIcon = options.npcIcon;
   }
 
   toggleClickable() {
@@ -108,8 +109,10 @@ class NPC {
         76, 66
         );
         ctx.fill();
+      if (this.npcIcon) {
+        ctx.drawImage(this.npcIcon, this.pos[0] + 17, this.pos[1] + 2, 42, 42);
+      }
       ctx.save();
-
     }
       if (this.selected){
         ctx.lineWidth = 2;

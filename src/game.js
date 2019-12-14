@@ -87,23 +87,85 @@ class Game {
     let k = 0;
 
     while (i < this.comp.tank){
-      this.party.push(new Tank({pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED, statusIcon: this.statusIcon}));
+      const npcIcon = this.getRandomIcon("tank");
+      this.party.push(new Tank({
+        pos: Game.NPC_POS[pos], 
+        ctx, 
+        canvas, 
+        game: this, 
+        speed: Game.SPEED, 
+        statusIcon: this.statusIcon, 
+        npcIcon: npcIcon }));
       // this.addNpcListener(pos);
       pos = pos + 1;
       i = i + 1;
     }
     while (j < this.comp.healer){
-      this.party.push(new Healer({ pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED, statusIcon: this.statusIcon}));
+      const npcIcon = this.getRandomIcon("healer");
+      this.party.push(new Healer({ 
+        pos: Game.NPC_POS[pos], 
+        ctx, 
+        canvas, 
+        game: this, 
+        speed: Game.SPEED, 
+        statusIcon: this.statusIcon,
+        npcIcon: npcIcon }));
       // this.addNpcListener(pos);
       pos = pos + 1;
       j = j + 1;
     }
     while (k < this.comp.dps){
-      this.party.push(new Dps({ pos: Game.NPC_POS[pos], ctx, canvas, game: this, speed: Game.SPEED, statusIcon: this.statusIcon}));
+      const npcIcon = this.getRandomIcon("dps");
+      this.party.push(new Dps({ 
+        pos: Game.NPC_POS[pos], 
+        ctx, 
+        canvas, 
+        game: this, 
+        speed: Game.SPEED, 
+        statusIcon: this.statusIcon,
+        npcIcon: npcIcon }));
       // this.addNpcListener(pos);
       pos = pos + 1;
       k = k + 1;
     }
+  console.log(this.party);
+  console.log(this.findHealer());
+  }
+
+  getRandomIcon(unit) {
+    const tankNum = 2;
+    const dpsNum = 5;
+    const healerNum = 2;
+
+    let numUnit;
+    let imgSrc = '../assets/sprites/';
+
+    switch (unit) {
+      case "tank":
+        numUnit = this.getRandNum(tankNum);
+        imgSrc += "tank" + numUnit + ".png";
+        const tankIcon = new Image(1,1);
+        tankIcon.src = imgSrc;
+        return tankIcon;
+      case "dps":
+        numUnit = this.getRandNum(dpsNum);
+        imgSrc += "dps" + numUnit + ".png";
+        const dpsIcon = new Image(1,1);
+        dpsIcon.src = imgSrc;
+        return dpsIcon;
+      case "healer":
+        numUnit = this.getRandNum(healerNum);
+        imgSrc += "healer" + numUnit + ".png";
+        const healerIcon = new Image(1,1);
+        healerIcon.src = imgSrc;
+        return healerIcon;
+      default:
+        break;
+    }
+  }
+
+  getRandNum(max){
+    return Math.floor(Math.random() * (max + 1));
   }
 
   addBoss(ctx, canvas, bossSrc) {
@@ -122,26 +184,33 @@ class Game {
   }
 
   playerCastBar(ctx) {
+    let yPos = 461;
+    let xPos = 47 + 163 + 163;
+    let width = 143;
+    let height = 21;
+    let textPosX = xPos + width / 2;
+    let textPosY = yPos + 17;
+
     if (this.isCasting){
-      let barLength = ((this.castTime / this.castTimeInitial) * 275);
+      let barLength = ((this.castTime / this.castTimeInitial) * width);
       if (this.castTime < Game.SPEED) {
         barLength = 0;
       }
 
       ctx.fillStyle = '#000000';
       ctx.beginPath();
-      ctx.rect(148, 463, 275, 21);
+      ctx.roundRect(xPos, yPos, width, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, true, false);
       ctx.fill();
 
       ctx.fillStyle = '#9900cc';
       ctx.beginPath();
-      ctx.rect(148, 463, barLength, 21);
+      ctx.roundRect(xPos, yPos, barLength, height);
       ctx.fill();
 
       ctx.fillStyle = '#FFFFFF';
       ctx.font = "18px Arial";
       ctx.textAlign = "center";
-      ctx.fillText(this.spellText, 285.5, 480.5);
+      ctx.fillText(this.spellText, textPosX, textPosY);
 
       this.castTime += Game.SPEED;
     }
@@ -155,21 +224,125 @@ class Game {
 
   manaBar(ctx){
     // manabar backing
+    let yPos = 461;
+    let xPos = 47 + 163;
+    let width = 143;
+    let height = 21;
+    let textPosX = xPos + width / 2;
+    let textPosY = yPos + 17;
+
+    //background
     ctx.fillStyle = '#000000';
-    ctx.beginPath();
-    ctx.rect(148, 433, 275, 21);
-    ctx.fill();
+    ctx.roundRect(xPos, yPos, width, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, true, false);
 
-    const currentMp = ((this.mp / 1000) * 275);
-    ctx.fillStyle = '#0066cc';
-    ctx.beginPath();
-    ctx.rect(148, 433, currentMp, 21);
-    ctx.fill();
+    const currentMp = ((this.mp / 1000) * width);
 
+    // this handles low mp values to not create a buggy view of trying to have a larger than possible radius
+    if (this.mp < 100 && this.mp > 70) {
+      ctx.fillStyle = '#0066cc';
+      ctx.roundRect(xPos, yPos, currentMp, height, {lowerLeft: 10, upperLeft: 10, upperRight: 7, lowerRight: 7}, true, false);
+    } else if (this.mp <= 70 && this.mp > 40) {
+      ctx.fillStyle = '#0066cc';
+      ctx.roundRect(xPos, yPos, currentMp, height, {lowerLeft: 10, upperLeft: 10, upperRight: 4, lowerRight: 4}, true, false);
+    } else if (this.mp <= 40 && this.mp > 25) {
+      ctx.fillStyle = '#0066cc';
+      ctx.roundRect(xPos, yPos, currentMp, height, {lowerLeft: 10, upperLeft: 10, upperRight: 1, lowerRight: 1}, true, false);
+    } else if (this.mp <= 25 && this.mp > 10) {
+      ctx.fillStyle = '#0066cc';
+      ctx.roundRect(xPos, yPos, 5, height, {lowerLeft: 10, upperLeft: 10, upperRight: 1, lowerRight: 1}, true, false);
+    } else if (this.mp < 10) {
+      ctx.fillStyle = '#000000';
+      ctx.roundRect(xPos, yPos, 0, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, false, false);
+    } else {
+      ctx.fillStyle = '#0066cc';
+      ctx.roundRect(xPos, yPos, currentMp, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, true, false);
+    }
+
+    //manabar outline
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(xPos, yPos, width, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, false, true);
+
+    //label text
+    ctx.fillStyle = 'gold';
+    ctx.font = '16px sans-serif';
+    ctx.textAlign = "start";
+    ctx.fillText("Mana", xPos + 11, yPos - 5);
+
+    // mana bar inner text showing current mana
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = "16px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(`${this.mp}`, textPosX , textPosY);
+  }
+
+  healthBar(ctx) {
+    // healthbar positions
+    let yPos = 461;
+    let xPos = 47;
+    let width = 143;
+    let height = 21;
+    let textPosX = xPos + width / 2;
+    let textPosY = yPos + 17;
+
+    const healer = this.findHealer();
+
+    // background
+    ctx.fillStyle = '#000000';
+    ctx.roundRect(xPos, yPos, width, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, true, false);
+
+    // this handles the current hp progressbar and allows for it to change shape at low hp values
+    let currentHpNumber = healer.currentHp;
+    const currentHpWidth = ((healer.currentHp / 100) * width);
+
+    if (currentHpNumber < 100 && currentHpNumber > 70) {
+      ctx.fillStyle = '#009933';
+      ctx.roundRect(xPos, yPos, currentHpWidth, height, {lowerLeft: 10, upperLeft: 10, upperRight: 7, lowerRight: 7}, true, false);
+    } else if (currentHpNumber <= 70 && currentHpNumber > 40) {
+      ctx.fillStyle = '#009933';
+      ctx.roundRect(xPos, yPos, currentHpWidth, height, {lowerLeft: 10, upperLeft: 10, upperRight: 4, lowerRight: 4}, true, false);
+    } else if (currentHpNumber <= 40 && currentHpNumber > 25) {
+      ctx.fillStyle = '#009933';
+      ctx.roundRect(xPos, yPos, currentHpWidth, height, {lowerLeft: 10, upperLeft: 10, upperRight: 1, lowerRight: 1}, true, false);
+    } else if (currentHpNumber <= 25 && currentHpNumber > 10) {
+      ctx.fillStyle = '#009933';
+      ctx.roundRect(xPos, yPos, 5, height, {lowerLeft: 10, upperLeft: 10, upperRight: 1, lowerRight: 1}, true, false);
+    } else if (currentHpNumber < 10) {
+      ctx.fillStyle = '#000000';
+      ctx.roundRect(xPos, yPos, 0, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, false, false);
+    } else {
+      ctx.fillStyle = '#009933';
+      ctx.roundRect(xPos, yPos, currentHpWidth, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, true, false);
+    }
+
+    //healthbar outline
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(xPos, yPos, width, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, false, true);
+
+    //label text
+    ctx.fillStyle = 'gold';
+    ctx.font = '16px sans-serif';
+    ctx.textAlign = "start";
+    ctx.fillText("Health", xPos + 11, yPos - 5);
+
+    // displays current HP values
     ctx.fillStyle = '#FFFFFF';
     ctx.font = "18px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("Mana", 285.5, 450.5);
+    ctx.fillText(`${Math.floor(currentHpNumber)}%`, textPosX , textPosY);
+  }
+
+  findHealer() {
+    //this will return the party's healer object
+    for (let i = 0; i < this.party.length; i++) {
+      const element = this.party[i];
+      if (element instanceof Healer) {
+        return element;
+      }
+    }
   }
 
   addPlayerSpells(){
@@ -233,6 +406,7 @@ class Game {
   }
 
   animateGCD(ctx){
+    // plan to rework this to use a secondary image with a transform.
     if (this.activeGCD) {
       this.gcdRemaining = this.gcdRemaining - Game.SPEED;
       if (this.gcdRemaining <= 0){
@@ -264,6 +438,8 @@ class Game {
       ctx.fill();
 
       // spell 5
+      // currently spell 5 is a "off global cooldown" skill and does not share
+      // the global cooldown with other skills
       // ctx.beginPath();
       // ctx.rect(372, 502, 63, gcdHeight);
       // ctx.fill();
@@ -427,7 +603,7 @@ class Game {
 
     ctx.fillStyle = "rgba(82, 82, 122, 0.5)";
     ctx.beginPath();
-    ctx.rect(40, 40, 475, 375);
+    ctx.rect(40, 40, 475, 196);
     ctx.fill();
 
     // drawing player spell list
@@ -444,6 +620,7 @@ class Game {
     });
     this.playerCastBar(ctx);
     this.manaBar(ctx);
+    this.healthBar(ctx)
     this.animateGCD(ctx);
     this.animateSpellCD(ctx);
     this.bossCastBar(ctx);
@@ -455,9 +632,13 @@ Game.DIM_X = 1000;
 Game.DIM_Y = 600;
 Game.SPEED = 66;
 
+Game.NPC_ICON_POS = [
+
+];
+
 Game.NPC_POS = [
-  [57,90], [148, 90], [239,90], [330,90], [421,90],
-  [57,171], [148, 171], [239,171], [330,171], [421,171],
+  [57,60], [148, 60], [239,60], [330,60], [421,60],
+  [57,146], [148, 146], [239,146], [330,146], [421,146],
   [57,252], [148, 252], [239,252], [330,252], [421,252],
   [57,333], [148, 333], [239,333], [330,333], [421,333]
 ];
