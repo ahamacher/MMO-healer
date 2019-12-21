@@ -22,7 +22,9 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 1500;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   regen(target) {
@@ -31,6 +33,8 @@ class Spells {
       target.receiveBuff(regen);
       this.game.mp -= 15;
       this.game.activeGCD = true;
+    } else {
+      this.game.errorCode = 2;
     };
   }
 
@@ -55,7 +59,9 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 1500;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   esuna(target) {
@@ -71,7 +77,9 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 1500;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   aoeRegen() {
@@ -96,7 +104,9 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 1500;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   revive(target) {
@@ -110,7 +120,9 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 3600;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   impactHeal(target) {
@@ -122,7 +134,11 @@ class Spells {
       }
       this.game.mp = this.game.mp - 5;
       this.game.impactCD = 20000;
-    }
+    } else if (target.currentHp <= 0 ) {
+      this.game.errorCode = 3;
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 }
 

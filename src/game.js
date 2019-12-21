@@ -4,6 +4,7 @@ const Dps = require("./units/dps.js");
 const Boss = require("./units/boss.js");
 const Spells = require("./spells.js");
 const BossSpells = require("./units/boss_spells.js");
+const GameErrors = require("./errors.js");
 
 class Game {
   constructor(options){
@@ -29,6 +30,10 @@ class Game {
     this.gameOver = false;
     this.gameOverBad = false;
     this.currentLevel = options.level;
+    this.errorCode = 0;
+    this.errorDisplay = null;
+    this.mpRegenTimer = 75;
+    this.hovered = null;
 
     this.impactCD = 0;
     this.impactMaxCD = 20000;
@@ -44,6 +49,8 @@ class Game {
     this.addFriendlyNpc(options.ctx, options.canvas);
     this.addBoss(options.ctx, options.canvas, options.bossSrc);
     this.addPlayerSpells();
+    this.addClickableSpells(options.ctx);
+    this.addSpellHover(options.ctx);
     this.makeBossSpells();
 
   }
@@ -56,7 +63,11 @@ class Game {
         member.selected = false;
       }
     });
-    return selected;
+    if (selected) {
+      return selected;
+    } else {
+      return false;
+    }
   }
 
   clearSelected(){
@@ -128,8 +139,6 @@ class Game {
       pos = pos + 1;
       k = k + 1;
     }
-  console.log(this.party);
-  console.log(this.findHealer());
   }
 
   getRandomIcon(unit) {
@@ -198,19 +207,30 @@ class Game {
       }
 
       ctx.fillStyle = '#000000';
-      ctx.beginPath();
       ctx.roundRect(xPos, yPos, width, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, true, false);
-      ctx.fill();
 
+      // handles low values of length for the cast bar due to the rounded rectangle
       ctx.fillStyle = '#9900cc';
-      ctx.beginPath();
-      ctx.roundRect(xPos, yPos, barLength, height);
-      ctx.fill();
+      if (barLength < 3 && barLength >= 0) {
+        ctx.roundRect(xPos, yPos, barLength, height, {lowerLeft: 10, upperLeft: 10, upperRight: 1, lowerRight: 1}, true, false);
+      } else if (barLength < 5 && barLength >= 3){
+        ctx.roundRect(xPos, yPos, barLength, height, {lowerLeft: 10, upperLeft: 10, upperRight: 4, lowerRight: 4}, true, false);
+      } else if (barLength < 7 && barLength >= 5){
+        ctx.roundRect(xPos, yPos, barLength, height, {lowerLeft: 10, upperLeft: 10, upperRight: 7, lowerRight: 7}, true, false);
+      } else if (barLength < 11 && barLength >= 7) {
+        ctx.roundRect(xPos, yPos, barLength, height, {lowerLeft: 10, upperLeft: 10, upperRight: 9, lowerRight: 9}, true, false);
+      } else {
+        ctx.roundRect(xPos, yPos, barLength, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, true, false);
+      }
 
       ctx.fillStyle = '#FFFFFF';
-      ctx.font = "18px Arial";
+      ctx.font = "16px Arial";
       ctx.textAlign = "center";
       ctx.fillText(this.spellText, textPosX, textPosY);
+
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.roundRect(xPos, yPos, width, height, {lowerLeft: 10, upperLeft: 10, upperRight: 10, lowerRight: 10}, false, true);
 
       this.castTime += Game.SPEED;
     }
@@ -272,7 +292,7 @@ class Game {
 
     // mana bar inner text showing current mana
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = "16px Arial";
+    ctx.font = '16px sans-serif';
     ctx.textAlign = "center";
     ctx.fillText(`${this.mp}`, textPosX , textPosY);
   }
@@ -330,7 +350,7 @@ class Game {
 
     // displays current HP values
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = "18px Arial";
+    ctx.font = '16px sans-serif';
     ctx.textAlign = "center";
     ctx.fillText(`${Math.floor(currentHpNumber)}%`, textPosX , textPosY);
   }
@@ -346,52 +366,249 @@ class Game {
   }
 
   addPlayerSpells(){
-    let selected;
     document.addEventListener('keydown', (e) => {
       switch (e.which){
         case 49:
-          selected = this.findSelected();
-          if (!this.activeGCD) {
-            new Spells({ game: this }).cure(selected);
-          }
+          this.castSpell("cure");
           break;
         case 50:
-          selected = this.findSelected();
-          if (!this.activeGCD) {
-            new Spells({ game: this }).regen(selected);
-          }
+          this.castSpell("regen");
           break;
         case 51:
-          if (!this.activeGCD) {
-            new Spells({game: this}).aoeHeal();
-          }
+          this.castSpell("aoeHeal");
           break;
         case 52:
-          if (!this.activeGCD) {
-            new Spells({game: this}).aoeRegen();
-          }
+          this.castSpell("aoeRegen");
           break;
         case 53:
-          // commenting this spell out to add later if desired
-          // if (!this.activeGCD) {
-          //   new Spells({game: this}).esuna();
-          // }
-          selected = this.findSelected();
-          if (this.impactCD === 0 && selected) {
-            new Spells({ game: this }).impactHeal(selected);
-          }
+          this.castSpell("impactHeal");
           break;
         case 54:
-          selected = this.findSelected();
-          if (selected.currentHp === 0) {
-            new Spells({ game: this }).revive(selected);
-          }
+          this.castSpell("revive");
           break;
         case 48:
-          this.boss.currentHp = 1;
+          this.castSpell("win");
           break;
       }
     });
+  }
+
+  castSpell(spell){
+    let selected;
+    this.spells = new Spells({ game: this });
+    
+    switch (spell) {
+      case "cure":
+        selected = this.findSelected();
+        if (!this.activeGCD && selected) {
+          this.spells.cure(selected);
+        } else if (selected === false) {
+          this.errorCode = 3;
+        } else {
+          this.errorCode = 1;
+        }
+        break;
+      case "regen":
+        selected = this.findSelected();
+        if (!this.activeGCD && selected) {
+          this.spells.regen(selected);
+        } else if (selected === false) {
+          this.errorCode = 3;
+        } else {
+          this.errorCode = 1;
+        };
+        break;
+      case "aoeHeal":
+        if (!this.activeGCD) {
+          this.spells.aoeHeal();
+        } else {
+          this.errorCode = 1;
+        };
+        break;
+      case "aoeRegen":
+        if (!this.activeGCD) {
+          this.spells.aoeRegen();
+        } else {
+          this.errorCode = 1;
+        };
+        break;
+      case "impactHeal":
+        selected = this.findSelected();
+        if (this.impactCD === 0 && selected) {
+          this.spells.impactHeal(selected);
+        } else if (selected === false) {
+          this.errorCode = 3;
+        }
+        break;
+      case "revive":
+        selected = this.findSelected();
+        if (selected.currentHp === 0) {
+          this.spells.revive(selected);
+        } else if (selected === false) {
+          this.errorCode = 3;
+        };
+        break;
+      case "kill":
+        this.boss.currentHp = 1;
+        break;
+    }
+  }
+
+  addClickableSpells(ctx){
+    let canvas = document.getElementById('game-canvas');
+    const pos = Game.SPELL_ICON_POS;
+
+    let spell1 = new Path2D();
+    spell1.rect(...pos['spell1']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell1);
+
+    let spell2 = new Path2D();
+    spell2.rect(...pos['spell2']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell2);
+
+    let spell3 = new Path2D();
+    spell3.rect(...pos['spell3']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell3);
+
+    let spell4 = new Path2D();
+    spell4.rect(...pos['spell4']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell4);
+    
+    let spell5 = new Path2D();
+    spell5.rect(...pos['spell5']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell5);
+    
+    let spell6 = new Path2D();
+    spell6.rect(...pos['spell6']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell6);
+
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        if (ctx.isPointInPath(spell1, (e.clientX - rect.x), (e.clientY - rect.y))) {
+          this.castSpell("cure");
+        };
+        if (ctx.isPointInPath(spell2, (e.clientX - rect.x), (e.clientY - rect.y))) {
+          this.castSpell("regen");
+        };
+        if (ctx.isPointInPath(spell3, (e.clientX - rect.x), (e.clientY - rect.y))) {
+          this.castSpell("aoeHeal");
+        };
+        if (ctx.isPointInPath(spell4, (e.clientX - rect.x), (e.clientY - rect.y))) {
+          this.castSpell("aoeRegen");
+        };
+        if (ctx.isPointInPath(spell5, (e.clientX - rect.x), (e.clientY - rect.y))) {
+          this.castSpell("impactHeal");
+        };
+        if (ctx.isPointInPath(spell6, (e.clientX - rect.x), (e.clientY - rect.y))) {
+          this.castSpell("revive");
+        };
+    });
+  }
+
+  drawHovered(ctx){
+    switch (this.hovered) {
+      case "cure":
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText("Cure", 71, 500);
+        break;
+      case "regen":
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText("Regen", 154, 500);
+        break;
+      case "aoeHeal":
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText("Aoe Heal", 237, 500);
+        break;
+      case "aoeRegen":
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText("Aoe Regen", 320, 500);
+        break;
+      case "impactHeal":
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText("Impact Heal", 403, 500);
+        break;
+      case "revive":
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = "center";
+        ctx.fillText("Revive", 486, 500);
+        break;
+      default:
+        break;
+    }
+  }
+
+  addSpellHover(ctx){
+    let canvas = document.getElementById('game-canvas');
+    const pos = Game.SPELL_ICON_POS;
+
+    let spell1 = new Path2D();
+    spell1.rect(...pos['spell1']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell1);
+
+    let spell2 = new Path2D();
+    spell2.rect(...pos['spell2']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell2);
+
+    let spell3 = new Path2D();
+    spell3.rect(...pos['spell3']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell3);
+
+    let spell4 = new Path2D();
+    spell4.rect(...pos['spell4']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell4);
+
+    let spell5 = new Path2D();
+    spell5.rect(...pos['spell5']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell5);
+
+    let spell6 = new Path2D();
+    spell6.rect(...pos['spell6']);
+    ctx.fillStyle = "rgba(0,0,0,0.001";
+    ctx.fill(spell6);
+
+    canvas.onmousemove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      if (ctx.isPointInPath(spell1, (e.clientX - rect.x), (e.clientY - rect.y))) {
+        this.hovered = "cure";
+      };
+      if (ctx.isPointInPath(spell2, (e.clientX - rect.x), (e.clientY - rect.y))) {
+        this.hovered = "regen";
+      };
+      if (ctx.isPointInPath(spell3, (e.clientX - rect.x), (e.clientY - rect.y))) {
+        this.hovered = "aoeHeal";
+      };
+      if (ctx.isPointInPath(spell4, (e.clientX - rect.x), (e.clientY - rect.y))) {
+        this.hovered = "aoeRegen";
+      };
+      if (ctx.isPointInPath(spell5, (e.clientX - rect.x), (e.clientY - rect.y))) {
+        this.hovered = "impactHeal";
+      };
+      if (ctx.isPointInPath(spell6, (e.clientX - rect.x), (e.clientY - rect.y))) {
+        this.hovered = "revive";
+      };
+    };
   }
 
   drawPlayerBox(ctx){
@@ -438,7 +655,7 @@ class Game {
       ctx.fill();
 
       // spell 5
-      // currently spell 5 is a "off global cooldown" skill and does not share
+      // currently spell 5 is a "off global cooldown" skill and does not share //
       // the global cooldown with other skills
       // ctx.beginPath();
       // ctx.rect(372, 502, 63, gcdHeight);
@@ -468,40 +685,42 @@ class Game {
   }
 
   drawPlayerSpells(ctx){
+    const pos = Game.SPELL_ICON_POS;
+
     // spell 1
     ctx.fillStyle = '#99ccff';
     ctx.drawImage(
-      this.spellIcons.cureIcon, 40, 502,63,63
+      this.spellIcons.cureIcon, ...pos["spell1"]
     );
 
     // spell 2
     ctx.drawImage(
-      this.spellIcons.regenIcon, 123, 502, 63, 63
+      this.spellIcons.regenIcon, ...pos["spell2"]
     );
 
     // spell 3
     ctx.drawImage(
-      this.spellIcons.aoeHeal, 206, 502, 63, 63
+      this.spellIcons.aoeHeal, ...pos["spell3"]
     );
 
     // spell 4
     ctx.drawImage(
-      this.spellIcons.aoeRegen, 289, 502, 63, 63
+      this.spellIcons.aoeRegen, ...pos["spell4"]
     );
 
     // spell 5
     ctx.drawImage(
-      this.spellIcons.esuna, 372, 502, 63, 63
+      this.spellIcons.esuna, ...pos["spell5"]
     );
 
     // spell 6
     ctx.drawImage(
-      this.spellIcons.revive, 455, 502, 63, 63
+      this.spellIcons.revive, ...pos["spell6"]
     );
 
     //spell text
     ctx.fillStyle = '#FFFFFF';
-    ctx.font = "bold 18px Arial";
+    ctx.font = '16px sans-serif';
     ctx.textAlign = "center";
     ctx.fillText("1", 71, 578);
     ctx.fillText("2", 154, 578);
@@ -564,6 +783,18 @@ class Game {
     }
   }
 
+  showErrors(ctx) {
+    if (this.errorCode !== 0) {
+      this.errorDisplay = new GameErrors(ctx, this.errorCode);
+      this.errorDisplay.draw();
+      setTimeout(
+        () => {
+          this.errorCode = 0;
+          this.errorDisplay = null;
+        }, 700);
+    };
+  };
+
   playerAttack() {
     this.party.forEach(member => {
       if (member.timeSinceAttack < member.attackRate) {
@@ -584,6 +815,15 @@ class Game {
     if (this.nextBossSpell && currentHpPc <= this.nextBossSpell.hp) {
       this.castBossSpell(this.nextBossSpell.spell);
       this.nextBossSpell = null;
+    }
+  }
+
+  regenMp() {
+    if (this.mpRegenTimer <= 0 && this.mp < 1000) {
+      this.mp += 5;
+      this.mpRegenTimer = 75;
+    } else {
+      this.mpRegenTimer -= 1;
     }
   }
 
@@ -625,6 +865,9 @@ class Game {
     this.animateSpellCD(ctx);
     this.bossCastBar(ctx);
     this.deadPlayerCheck();
+    this.drawHovered(ctx);
+    this.showErrors(ctx);
+    this.regenMp();
   }
 }
 
@@ -632,9 +875,22 @@ Game.DIM_X = 1000;
 Game.DIM_Y = 600;
 Game.SPEED = 66;
 
+// locations on the battlefield of each character
+// positions will go tank(s) up closest to the boss
+// next will be dps
+// healer will be last
 Game.NPC_ICON_POS = [
 
 ];
+
+Game.SPELL_ICON_POS = {
+  "spell1": [40, 502, 63, 63],
+  "spell2": [123, 502, 63, 63],
+  "spell3": [206, 502, 63, 63],
+  "spell4": [289, 502, 63, 63],
+  "spell5": [372, 502, 63, 63],
+  "spell6": [455, 502, 63, 63],
+}
 
 Game.NPC_POS = [
   [57,60], [148, 60], [239,60], [330,60], [421,60],
