@@ -147,7 +147,7 @@ class Game {
     const healerNum = 2;
 
     let numUnit;
-    let imgSrc = '../assets/sprites/';
+    let imgSrc = './assets/sprites/';
 
     switch (unit) {
       case "tank":
