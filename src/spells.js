@@ -5,7 +5,7 @@ class Spells {
 
   cure(target) {
     // add cast time and animation
-    if (this.game.mp > 10){
+    if (this.game.mp >= 10){
       setTimeout(() => {
         if (!target.isDead()){
           target.currentHp += 20;
@@ -22,20 +22,25 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 1500;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   regen(target) {
     const regen = { type: 'heal', heal: 5, duration: 15000, activation: 0 };
-    target.receiveBuff(regen);
-    this.game.mp -= 15;
-    this.game.activeGCD = true;
-    // this.game.gcdWait();
+    if (this.game.mp >= 15){
+      target.receiveBuff(regen);
+      this.game.mp -= 15;
+      this.game.activeGCD = true;
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   aoeHeal() {
     //no target needed
-    if (this.game.mp > 30) {
+    if (this.game.mp >= 30) {
       setTimeout(() => {
         this.game.party.forEach(member => {
           if (!member.isDead()){
@@ -54,11 +59,13 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 1500;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   esuna(target) {
-    if (this.game.mp > 10) {
+    if (this.game.mp >= 10) {
       setTimeout(() => {
         if (!target.isDead()) {
           target.debuffs.pop();
@@ -70,12 +77,14 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 1500;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   aoeRegen() {
     const regen = { type: 'heal', heal: 5, duration: 20000, activation: 0 };
-    if (this.game.mp > 75) {
+    if (this.game.mp >= 75) {
       setTimeout(() => {
         this.game.party.forEach(member => {
           if (!member.isDead()) {
@@ -95,11 +104,13 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 1500;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   revive(target) {
-    if (this.game.mp > 100 && target.isDead()) {
+    if (this.game.mp >= 100 && target.isDead()) {
       setTimeout(() => {
         target.currentHp = Math.floor(target.maxHp * 0.35);
         this.game.mp = this.game.mp - 100;
@@ -109,11 +120,13 @@ class Spells {
       this.game.castTime = 0;
       this.game.isCasting = true;
       this.game.castTimeInitial = 3600;
-    }
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 
   impactHeal(target) {
-    if (this.game.mp > 5 && target.currentHp > 0) {
+    if (this.game.mp >= 5 && target.currentHp > 0) {
       target.currentHp += Math.floor(target.maxHp * 0.35);
       if (target.currentHp > target.maxHp) {
         this.game.overheal += (target.currentHp - target.maxHp);
@@ -121,7 +134,11 @@ class Spells {
       }
       this.game.mp = this.game.mp - 5;
       this.game.impactCD = 20000;
-    }
+    } else if (target.currentHp <= 0 ) {
+      this.game.errorCode = 3;
+    } else {
+      this.game.errorCode = 2;
+    };
   }
 }
 
