@@ -22,6 +22,6 @@
   "homepage": "https://github.com/ahamacher/MMO-healer#readme",
   "dependencies": {
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.12"
   }
 }
